@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include "GfxLib.h"
 #include <time.h>
+#include "grille.h"
 
 #define MINE -1
 
 void initGrille(int lignes, int colonnes) {
-    int i, j, cpt;
+    int i = 0, j = 0;
 
     int** grid = (int**)malloc(lignes * sizeof(int*));
     for (i = 0; i < lignes; i++) {
@@ -14,6 +15,8 @@ void initGrille(int lignes, int colonnes) {
             grid[i][j] = 0;
         }
     }
+}
 
-
+int main() {
+    return 0;
 }
