@@ -1,6 +1,17 @@
 #ifndef GRILLE_H
+
 #define GRILLE_H
 
-void initGrille(int lignes, int colonnes);
+int **initGrille(int lignes, int colonnes);
+
+void choixDifficulte(int difficulte, int *lignes, int *colonnes, int *mines);
+
+void placerMines(int **grille, int lignes, int colonnes, int mines);
+
+void placerChiffres(int **grille, int lignes, int colonnes);
+
+void libererGrille(int **grille, int lignes);
+
+void afficherGrille(int **grille, int lignes, int colonnes);
 
 #endif // GRILLE_H
