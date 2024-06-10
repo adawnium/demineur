@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include "GfxLib.h"
+#include <time.h>
 
-void initGrille(int lignes, int colonnes, int mines) {
+#define MINE -1
+
+void initGrille(int lignes, int colonnes) {
     int i, j, cpt;
 
     int** grid = (int**)malloc(lignes * sizeof(int*));
@@ -12,13 +15,5 @@ void initGrille(int lignes, int colonnes, int mines) {
         }
     }
 
-    srand(time(0));
-    while (cpt < mines) {
-        int x = rand() % lignes;
-        int y = rand() % colonnes;
-        if (grid[x][y] != MINE) {
-            grid[x][y] = MINE;
-            cpt++;
-        }
-    }
+
 }
