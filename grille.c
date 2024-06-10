@@ -2,7 +2,6 @@
 #include "source/GfxLib.h"
 #include <time.h>
 #include <stdlib.h>
-
 #include "grille.h"
 
 #define MINE -1
@@ -17,6 +16,4 @@ void initGrille(int lignes, int colonnes) {
             grid[i][j] = 0;
         }
     }
-
-
 }
