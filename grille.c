@@ -1,7 +1,6 @@
 #include <stdio.h>
+#include "GfxLib.h"
 
-int main() {
-    // Your code here
-
-    return 0;
+void initGrille(int lignes, int colonnes) {
+    
 }
