@@ -1,11 +1,27 @@
 #include <stdio.h>
-#include "GFXLIB/GfxLib.h"
-#include <time.h>
 #include <stdlib.h>
-#include "grille.h"
+#include <stdbool.h>
+#include <time.h>
+#include "source/GfxLib.h"
+
+//La structure des cases du tableau
+typedef struct {
+    char etat;
+    bool flaged;
+    bool hasMine;
+    bool revealed;
+    int nbMinesAdj;
+} Case;
+
+//Prototypes des fonctions
+Case** initTableau(int lignes, int colonnes);
+void placeMines(int lignes, int colonnes, int nbMines, Case** tableau, int x, int y);
+void compteMines(Case** tableau, int x, int y, int lignes, int colonnes);
+void afficheGrille(Case** tableau, int lignes, int colonnes);
+
 
 void choixDifficulte(int difficulte , int* lignes, int* colonnes, int* mines) {
-	switch(difficulte){
+	switch(difficulte) {
 		case 1:
 			*lignes = 15;
 			*colonnes = 10;
@@ -21,163 +37,126 @@ void choixDifficulte(int difficulte , int* lignes, int* colonnes, int* mines) {
 			*colonnes = 20;
 			*mines = 100;
 			break;
+        default:
+            printf("Erreur de saisie\n");
+            break;
 	}
 }
 
-int** initGrille(int lignes, int colonnes) {
-    int i, j;
 
-    int** grid = (int**)malloc(lignes * sizeof(int*));
-    for (i = 0; i < lignes; i++) {
-        grid[i] = (int*)malloc(colonnes * sizeof(int));
-        for (j = 0; j < colonnes; j++) {
-            grid[i][j] = 0;
+//Initialise le tableau 2D de cases
+Case** initTableau(int lignes, int colonnes) {
+    Case** tableau = (Case**) malloc(lignes * sizeof(Case*));
+    for (int i = 0; i < lignes; i++) {
+        tableau[i] = (Case*) malloc(colonnes * sizeof(Case));
+        for (int j = 0; j < colonnes; j++) {
+            tableau[i][j].etat = '.';
+            tableau[i][j].flaged = false;
+            tableau[i][j].hasMine = false;
+            tableau[i][j].revealed = false;
+            tableau[i][j].nbMinesAdj = 0;
         }
     }
-    return grid;
+    return tableau;
 }
 
-void placerMines(int** grille, int lignes, int colonnes, int mines, int firstX, int firstY) {
+void afficheGrille(Case** tableau, int lignes, int colonnes) {
+    for (int i = 0; i < lignes; i++) {
+        for (int j = 0; j < colonnes; j++) {
+            printf("%c ", tableau[i][j].etat);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+void libererGrille(Case** tableau, int lignes) {
+    for (int i = 0; i < lignes; i++) {
+        free(tableau[i]);
+    }
+    free(tableau);
+}
+
+//Place les mines aléatoirement dans le tableau
+void placeMines(int lignes, int colonnes, int nbMines, Case** tableau, int firstx, int firsty) {
     srand(time(NULL));
-    int placed = 0;
-    grille[firstX][firstY] = -1;
-    for (int i = firstX - 1; i <= firstX + 1; i++) {
-        for (int j = firstY - 1; j <= firstY + 1; j++) {
+    int cptMines = 0;
+
+    tableau[firstx][firsty].hasMine = true;
+    tableau[firstx][firsty].etat = 'M';
+    for (int i = firstx - 1; i <= firstx + 1; i++) {
+        for (int j = firsty - 1; j <= firsty + 1; j++) {
             if (i >= 0 && i < lignes && j >= 0 && j < colonnes) {
-                grille[i][j] = -1;
+                tableau[i][j].hasMine = true;
+                tableau[i][j].etat = 'M';
             }
         }
     }
-    while (placed < mines) {
+
+    while (cptMines < nbMines) {
         int x = rand() % lignes;
         int y = rand() % colonnes;
-        
-        if ((x >= firstX - 1 && x <= firstX + 1) && (y >= firstY - 1 && y <= firstY + 1)) {
-            continue;
-        }
-
-        if (grille[x][y] == 0) {
-            grille[x][y] = -1;
-            placed++;
+        if (!tableau[x][y].hasMine) {
+            tableau[x][y].hasMine = true;
+            tableau[x][y].etat = 'M';
+            cptMines++;
         }
     }
-    grille[firstX][firstY] = 0;
-    for (int i = firstX - 1; i <= firstX + 1; i++) {
-        for (int j = firstY - 1; j <= firstY + 1; j++) {
+
+    tableau[firstx][firsty].hasMine = false;
+    tableau[firstx][firsty].etat = '.';
+    for (int i = firstx - 1; i <= firstx + 1; i++) {
+        for (int j = firsty - 1; j <= firsty + 1; j++) {
             if (i >= 0 && i < lignes && j >= 0 && j < colonnes) {
-                grille[i][j] = 0;
+                tableau[i][j].hasMine = false;
+                tableau[i][j].etat = '.';
             }
         }
     }
 }
 
-void placerChiffres(int** grille, int lignes, int colonnes) {
+void compteMines(Case** tableau, int x, int y, int lignes, int colonnes) {
+    int compteur = 0;
 
-    int dx[] = {-1, -1, -1, 0, 1, 1, 1, 0};
-    int dy[] = {-1, 0, 1, 1, 1, 0, -1, -1};
-
-    for (int i = 0; i < lignes; i++) {
-        for (int j = 0; j < colonnes; j++) {
-            if (grille[i][j] == -1) continue;
-
-            int minesCount = 0;
-            for (int k = 0; k < 8; k++) {
-                int ni = i + dx[k];
-                int nj = j + dy[k];
-                if (ni >= 0 && ni < lignes && nj >= 0 && nj < colonnes && grille[ni][nj] == -1) {
-                    minesCount++;
+    for(int i = -1; i <= 1; i++) {
+        for(int j = -1; j <= 1; j++) {
+            if(x + i >= 0 && x + i < lignes && y + j >= 0 && y + j < colonnes) {
+                if(tableau[x + i][y + j].hasMine) {
+                    compteur++;
                 }
             }
-            grille[i][j] = minesCount;
         }
     }
+    tableau[x][y].nbMinesAdj = compteur;
 }
 
-void libererGrille(int** grille, int lignes) {
-    for (int i = 0; i < lignes; i++) {
-        free(grille[i]);
-    }
-    free(grille);
-}
 
-void afficherGrilleFinale(int** grille, int lignes, int colonnes) {
-    for (int i = 0; i < lignes; i++) {
-        for (int j = 0; j < colonnes; j++) {
-                printf("%2d ", grille[i][j]);
-            }
-        printf("\n");
-    }
-}
-
-void afficherGrille(int lignes, int colonnes) {
-    for (int i = 0; i < lignes; i++) {
-        for (int j = 0; j < colonnes; j++) {
-                printf("*");
-            }
-        printf("\n");
-    }
-}
-
-void reveleCase(int** grille, bool** revealed, int choixLigne, int choixColonne, int lignes, int colonnes) {
-	// if(etatBoutonSouris() != GaucheAppuye) {
-	// 	printf("Autre\n");
-	// 	return;
-	// }
-
-	if(grille[choixLigne][choixColonne] == -1) {        //la grille contient une mine
-        printf("Perdu, mine touchée\n");
-        afficherGrilleFinale(grille, lignes, colonnes);
+void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes) {
+    if(x < 0 || x >= lignes || y < 0 || y >= colonnes || tableau[x][y].revealed) {
         return;
     }
-
-    if(revealed[choixLigne][choixColonne] == true) {
-        return;
-    }
-
-    if(grille[choixLigne][choixColonne] != 0 || grille[choixLigne][choixColonne] != -1) {
-        printf("pas une mine ok\n");
-        printf("%2d", grille[choixLigne][choixColonne]);
-        revealed[choixLigne][choixColonne] = true; // Marque la case comme révélée
-    }
-
-    // Rappelle la fonction pour chaque case autour de la case actuelle
-    for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
-            // Vérifie si les indices de la case sont valides
-            if (choixLigne + i >= 0 && choixLigne + i < lignes && choixColonne + j >= 0 && choixColonne + j < colonnes) {
-                if(revealed[choixLigne + i][choixColonne + j] == false) {
-                    reveleCase(grille, revealed, choixLigne + i, choixColonne + j, lignes, colonnes);
-            }
-        }
-    }
-}
-}
-
-void placerDrapeau(int** grille, bool** revealed, char**drapeauTab, int choixLigne, int choixColonne) {
-    if(revealed[choixLigne][choixColonne] == true) {
-        return;
-    }
-    drapeauTab[choixLigne][choixColonne] = 'D';
-}
-
-
-int main(void) {
-    int lignes, colonnes, mines;
     
+    tableau[x][y].revealed = true;
+
+    if(tableau[x][y].nbMinesAdj == 0) {
+        for(int i = -1; i <= 1; i++) {
+            for(int j = -1; j <= 1; j++) {
+                reveleCase(tableau, x + i, y + j, lignes, colonnes);
+            }
+        }
+    }
+}
+
+
+
+
+int main() {
+    int lignes = 0, colonnes = 0, mines = 0 /*difficulte = 0*/;
+
     choixDifficulte(1, &lignes, &colonnes, &mines);
 
-    int** grille = initGrille(lignes, colonnes);
-    
-    int firstX = 0;
-    int firstY = 0;
-    
-    placerMines(grille, lignes, colonnes, mines, firstX, firstY);
-    placerChiffres(grille, lignes, colonnes);
-
-    afficherGrilleFinale(grille, lignes, colonnes);
-
-    libererGrille(grille, lignes);
+    Case** tableau = initTableau(lignes, colonnes);
+    afficheGrille(tableau, lignes, colonnes);
 
     return 0;
-
 }
