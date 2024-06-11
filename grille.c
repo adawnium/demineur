@@ -163,6 +163,7 @@ void placerDrapeau(int** grille, bool** revealed, char**drapeauTab, int choixLig
 
 int main(void) {
     int lignes, colonnes, mines;
+    
     choixDifficulte(1, &lignes, &colonnes, &mines);
 
     int** grille = initGrille(lignes, colonnes);
