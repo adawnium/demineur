@@ -131,38 +131,21 @@ void gestionEvenement(EvenementGfx evenement)
 			}
 			break;
 			
-		case ClavierSpecial:
-			printf("ASCII %d\n", toucheClavier());
-			break;
 
 		case BoutonSouris:
 			switch (etatBoutonSouris())
 			{
 				case GaucheAppuye:
 					printf("Bouton gauche appuye en : (%d, %d)\n", abscisseSouris(), ordonneeSouris());
+					reveleCase(); //TODO : Fonction qui revele la case cliquée
 					break;
 				case GaucheRelache:
 					printf("Bouton gauche relache en : (%d, %d)\n", abscisseSouris(), ordonneeSouris());
+					deposeDrapeau(); //TODO : Fonction qui depose un drapeau
 					break;
 				case DroiteAppuye:
 				case DroiteRelache:
 					puts("Bouton droite");
-					break;
-				case MilieuAppuye:
-				case MilieuRelache:
-					puts("Bouton milieu");
-					break;
-				case ScrollDown:
-					puts("Scroll down");
-					break;
-				case ScrollUp:
-					puts("Scroll up");
-					break;
-				case ScrollRight:
-					puts("Scroll right");
-					break;
-				case ScrollLeft:
-					puts("Scroll left");
 					break;
 			}
 			break;
@@ -263,4 +246,13 @@ void traceGraphique()
         printed = true;
     }
 
+}
+
+void reveleCase(int** grille) {
+	if(etatBoutonSouris() != GaucheAppuye) {
+		printf("Autre\n");
+		return;
+	}
+
+	if(grille[i][j])
 }

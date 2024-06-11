@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "grille.h"
 
-void choixDifficulte(int difficulte , int* lignes, int* colonnes, int* mines){
+void choixDifficulte(int difficulte , int* lignes, int* colonnes, int* mines) {
 	switch(difficulte){
 		case 1:
 			*lignes = 15;
@@ -72,11 +72,14 @@ void placerMines(int** grille, int lignes, int colonnes, int mines, int firstX, 
 }
 
 void placerChiffres(int** grille, int lignes, int colonnes) {
+
     int dx[] = {-1, -1, -1, 0, 1, 1, 1, 0};
     int dy[] = {-1, 0, 1, 1, 1, 0, -1, -1};
+
     for (int i = 0; i < lignes; i++) {
         for (int j = 0; j < colonnes; j++) {
             if (grille[i][j] == -1) continue;
+
             int minesCount = 0;
             for (int k = 0; k < 8; k++) {
                 int ni = i + dx[k];
@@ -97,20 +100,68 @@ void libererGrille(int** grille, int lignes) {
     free(grille);
 }
 
-void afficherGrille(int** grille, int lignes, int colonnes) {
+void afficherGrilleFinale(int** grille, int lignes, int colonnes) {
     for (int i = 0; i < lignes; i++) {
         for (int j = 0; j < colonnes; j++) {
-            if (grille[i][j] == -1) {
-                printf("* ");
-            } else {
-                printf("%d ", grille[i][j]);
+                printf("%2d ", grille[i][j]);
             }
-        }
         printf("\n");
     }
 }
 
-int main() {
+void afficherGrille(int lignes, int colonnes) {
+    for (int i = 0; i < lignes; i++) {
+        for (int j = 0; j < colonnes; j++) {
+                printf("*");
+            }
+        printf("\n");
+    }
+}
+
+void reveleCase(int** grille, bool** revealed, int choixLigne, int choixColonne, int lignes, int colonnes) {
+	// if(etatBoutonSouris() != GaucheAppuye) {
+	// 	printf("Autre\n");
+	// 	return;
+	// }
+
+	if(grille[choixLigne][choixColonne] == -1) {        //la grille contient une mine
+        printf("Perdu, mine touchée\n");
+        afficherGrilleFinale(grille, lignes, colonnes);
+        return;
+    }
+
+    if(revealed[choixLigne][choixColonne] == true) {
+        return;
+    }
+
+    if(grille[choixLigne][choixColonne] != 0 || grille[choixLigne][choixColonne] != -1) {
+        printf("pas une mine ok\n");
+        printf("%2d", grille[choixLigne][choixColonne]);
+        revealed[choixLigne][choixColonne] = true; // Marque la case comme révélée
+    }
+
+    // Rappelle la fonction pour chaque case autour de la case actuelle
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            // Vérifie si les indices de la case sont valides
+            if (choixLigne + i >= 0 && choixLigne + i < lignes && choixColonne + j >= 0 && choixColonne + j < colonnes) {
+                if(revealed[choixLigne + i][choixColonne + j] == false) {
+                    reveleCase(grille, revealed, choixLigne + i, choixColonne + j, lignes, colonnes);
+            }
+        }
+    }
+}
+}
+
+void placerDrapeau(int** grille, bool** revealed, char**drapeauTab, int choixLigne, int choixColonne) {
+    if(revealed[choixLigne][choixColonne] == true) {
+        return;
+    }
+    drapeauTab[choixLigne][choixColonne] = 'D';
+}
+
+
+int main(void) {
     int lignes, colonnes, mines;
     choixDifficulte(1, &lignes, &colonnes, &mines);
 
@@ -122,8 +173,10 @@ int main() {
     placerMines(grille, lignes, colonnes, mines, firstX, firstY);
     placerChiffres(grille, lignes, colonnes);
 
-    afficherGrille(grille, lignes, colonnes);
+    afficherGrilleFinale(grille, lignes, colonnes);
 
     libererGrille(grille, lignes);
+
     return 0;
+
 }
