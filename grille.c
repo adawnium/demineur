@@ -34,7 +34,7 @@ int** initGrille(int lignes, int colonnes) {
             grid[i][j] = 0;
         }
     }
-   return grid;
+    return grid;
 }
 
 void placerMines(int** grille, int lignes, int colonnes, int mines, int firstX, int firstY) {

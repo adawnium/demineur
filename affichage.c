@@ -24,7 +24,6 @@ int main(int argc, char **argv)
 	/* Lance la boucle qui aiguille les evenements sur la fonction gestionEvenement ci-apres,
 		qui elle-meme utilise fonctionAffichage ci-dessous */
 	lanceBoucleEvenements();
-	
 	return 0;
 }
 
@@ -141,7 +140,6 @@ void gestionEvenement(EvenementGfx evenement)
 			{
 				case GaucheAppuye:
 					printf("Bouton gauche appuye en : (%d, %d)\n", abscisseSouris(), ordonneeSouris());
-                   
 					break;
 				case GaucheRelache:
 					printf("Bouton gauche relache en : (%d, %d)\n", abscisseSouris(), ordonneeSouris());
@@ -264,4 +262,5 @@ void traceGraphique()
     {
         printed = true;
     }
+
 }
