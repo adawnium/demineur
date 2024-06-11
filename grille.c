@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include "grille.h"
 
+#define LargeurFenetre 800
+#define HauteurFenetre 600
+
 void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines){
 	switch(difficulte){
 		case 1:
@@ -107,15 +110,19 @@ void afficherGrille(int** grille, int lignes, int colonnes){
 	}
 }
 
-int main(){
+int main(int argc, char **argv){
 	int lignes, colonnes, mines;
+
 	choixDifficulte(1, &lignes, &colonnes, &mines);
+
 	int** grille = initGrille(lignes, colonnes);
 	int firstX = 0;
 	int firstY = 0;
+
 	placerMines(grille, lignes, colonnes, mines, firstX, firstY);
 	placerChiffres(grille, lignes, colonnes);
 	afficherGrille(grille, lignes, colonnes);
 	libererGrille(grille, lignes);
+
 	return 0;
 }

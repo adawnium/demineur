@@ -6,7 +6,7 @@ int **initGrille(int lignes, int colonnes);
 
 void choixDifficulte(int difficulte, int *lignes, int *colonnes, int *mines);
 
-void placerMines(int **grille, int lignes, int colonnes, int mines);
+void placerMines(int** grille, int lignes, int colonnes, int mines, int firstX, int firstY);
 
 void placerChiffres(int **grille, int lignes, int colonnes);
 
