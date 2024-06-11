@@ -117,11 +117,7 @@ void gestionEvenement(EvenementGfx evenement)
 			switch (etatBoutonSouris())
 			{
 				case GaucheAppuye:
-					case_non_cliquee = case_1;
-                    case_non_cliquee = case_2;
-                    case_non_cliquee = case_3;
-                    case_non_cliquee = case_vide;
-                    case_non_cliquee = mine;
+					
 					break;
 				case DroiteAppuye:
                     case_non_cliquee = balise;
