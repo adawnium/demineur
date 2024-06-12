@@ -3,32 +3,8 @@
 #include <stdbool.h>
 #include <time.h>
 #include "GFXLIB/GfxLib.h"
+#include "grille.h"
 
-//La structure des cases du tableau
-ttypedef struct {
-    char etat;
-    bool flagged;
-    bool hasMine;
-    bool revealed;
-    int nbMinesAdj;
-} Case;
-
-
-//Prototype des fonctions
-Case** initTableau(int lignes, int colonnes);
-void placeMines(int lignes, int colonnes, int nbMines, Case** tableau, int firstx, int firsty);
-void compteMines(Case** tableau, int x, int y, int lignes, int colonnes);
-void afficheGrille(Case** tableau, int lignes, int colonnes);
-void libererGrille(Case** tableau, int lignes);
-void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines);
-void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes);
-void placerDrapeau(Case** tableau, int x, int y);
-void enleverDrapeau(Case** tableau, int x, int y);
-int verifCasesRevelees(Case** tableau, int lignes, int colonnes);
-bool victoire(Case** tableau, int lignes, int colonnes, int nbMines);
-void afficheGrilleComplete(Case** tableau, int lignes, int colonnes);
-bool finDePartie();
-//??????????????????????????????????????????????????????????????????????????
 
 // TODO: fonctions qui check les victoires
 // TODO: fonctions qui vérifie que toutes les cases ont été révélées
@@ -118,36 +94,47 @@ void libererGrille(Case** tableau, int lignes) {
 }
 
 // Place les mines aléatoirement dans le tableau
-void placeMines(int lignes, int colonnes, int nbMines, Case** tableau, int firstx, int firsty) {
-	srand(time(NULL));
-	int cptMines = 0;
+// void placeMines(int lignes, int colonnes, int nbMines, Case** tableau, int firstx, int firsty) {
+// 	srand(time(NULL));
+// 	int cptMines = 0;
 
-	// Marquer les cases autour de la première case pour éviter les mines
-	for (int i = firstx - 1; i <= firstx + 1; i++) {
-		for (int j = firsty - 1; j <= firsty + 1; j++) {
-			if (i >= 0 && i < lignes && j >= 0 && j < colonnes) {
-				tableau[i][j].hasMine = true;
-			}
-		}
-	}
+// 	// Marquer les cases autour de la première case pour éviter les mines
+// 	for (int i = firstx - 1; i <= firstx + 1; i++) {
+// 		for (int j = firsty - 1; j <= firsty + 1; j++) {
+// 			if (i >= 0 && i < lignes && j >= 0 && j < colonnes) {
+// 				tableau[i][j].hasMine = true;
+// 			}
+// 		}
+// 	}
 
-	while (cptMines < nbMines) {
-		int x = rand() % lignes;
-		int y = rand() % colonnes;
-		if (!tableau[x][y].hasMine) {
-			tableau[x][y].hasMine = true;
-			cptMines++;
-		}
-	}
+// 	while (cptMines < nbMines) {
+// 		int x = rand() % lignes;
+// 		int y = rand() % colonnes;
+// 		if (!tableau[x][y].hasMine) {
+// 			tableau[x][y].hasMine = true;
+// 			cptMines++;
+// 		}
+// 	}
 
-	// Réinitialiser les cases autour de la première case
-	for (int i = firstx - 1; i <= firstx + 1; i++) {
-		for (int j = firsty - 1; j <= firsty + 1; j++) {
-			if (i >= 0 && i < lignes && j >= 0 && j < colonnes) {
-				tableau[i][j].hasMine = false;
-			}
-		}
-	}
+// 	// Réinitialiser les cases autour de la première case
+// 	for (int i = firstx - 1; i <= firstx + 1; i++) {
+// 		for (int j = firsty - 1; j <= firsty + 1; j++) {
+// 			if (i >= 0 && i < lignes && j >= 0 && j < colonnes) {
+// 				tableau[i][j].hasMine = false;
+// 			}
+// 		}
+// 	}
+// }
+
+void placeMines(int lignes, int colonnes, int mines, Case** tableau, int x1er, int y1er) {
+    for(int k = 0; k < mines; k++) {
+        int i, j;
+        do {
+            i = rand() % lignes;
+            j = rand() % colonnes;
+        } while(tableau[i][j].hasMine || (abs(i - x1er + 1) <= 1 && abs(j - y1er + 1) <= 1)); // Continue tant qu'une mine est déjà présente ou que la case est voisine de la première case à dévoiler
+        tableau[i][j].hasMine = true;
+    }
 }
 
 // Compte le nombre de mines adjacentes à une case
@@ -170,8 +157,14 @@ void compteMines(Case** tableau, int x, int y, int lignes, int colonnes) {
 // Révèle la case et les cases adjacentes
 void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes) {
 	if (x < 0 || x >= lignes || y < 0 || y >= colonnes || tableau[x][y].revealed) {
+        printf("Choisis une autre case\n");
 		return;
 	}
+
+    if (tableau[x][y].flagged) {
+        printf("Ouvre les knoeils y'a un drapeau la tsssss\n");
+        return;
+    }
 
 	tableau[x][y].revealed = true;
 	tableau[x][y].etat = tableau[x][y].nbMinesAdj + '0';
@@ -238,6 +231,8 @@ int main() {
 	int x1er = 0;
 	int y1er = 0;
 
+    srand(time(NULL));
+
 	printf("Choisissez la difficulte :\n1. Facile\n2. Moyen\n3. Difficile\n4. Test\n");
 	scanf("%d", &difficulte);
 
@@ -259,7 +254,7 @@ int main() {
 
 	reveleCase(tableau, x1er - 1, y1er - 1, lignes, colonnes);
 
-	int gameTermine = verifCasesRevelees(tableau, lignes, colonnes); 
+	// int gameTermine = verifCasesRevelees(tableau, lignes, colonnes); 
 
 	while (!victoire(tableau, lignes, colonnes, mines)) {
 		afficheGrille(tableau, lignes, colonnes);
@@ -288,7 +283,7 @@ int main() {
 			printf("Veuillez choisir un chiffre entre 1 et 3\n");
 		}
 
-		gameTermine = verifCasesRevelees(tableau, lignes, colonnes);
+		// gameTermine = verifCasesRevelees(tableau, lignes, colonnes);
 	}
 
 	if (victoire(tableau, lignes, colonnes, mines)) {
