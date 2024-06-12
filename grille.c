@@ -251,7 +251,6 @@ int verifCasesRevelees(Case** tableau, int lignes, int colonnes) {
 }
 
 bool victoire(Case** tableau, int lignes, int colonnes) {
-    int nbMines = 0;
     for(int i = 0; i < lignes; i++) {
         for(int j = 0; j < colonnes; j++) {
             if(tableau[i][j].flagged && tableau[i][j].hasMine) {
