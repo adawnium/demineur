@@ -13,7 +13,7 @@ typedef struct {
     int nbMinesAdj;
 } Case;
 
-//Prototypes des fonctions TODO: put in the header file
+//Prototypes des fonctions
 Case** initTableau(int lignes, int colonnes);
 void placeMines(int lignes, int colonnes, int nbMines, Case** tableau, int firstx, int firsty);
 void compteMines(Case** tableau, int x, int y, int lignes, int colonnes);
@@ -273,6 +273,16 @@ bool victoire(Case** tableau, int lignes, int colonnes) {
 //         }
 //     }   
 // }
+
+void Chronometre(clock_t start, clock_t end, double cpu_time_used) {
+    if (initTableau != NULL) {
+        for (int i = 0; i < 1000000; i++) {
+            start = clock();
+            cpu_time_used = ((double) (end - start)) / CLOCK_PER_SEC;
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////
 
 int main() {
