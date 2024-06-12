@@ -20,6 +20,5 @@ void placerDrapeau(Case** tableau, int x, int y, int* cptflag);
 void enleverDrapeau(Case** tableau, int x, int y, int* cptflag);
 bool victoire(Case** tableau, int lignes, int colonnes, int nbMines);
 void afficheGrilleComplete(Case** tableau, int lignes, int colonnes);
-bool finDePartie();
 
 #endif // GRILLE_H
