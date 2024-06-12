@@ -1,6 +1,7 @@
 #ifndef GRILLE_H
 #define GRILLE_H
 
+//La structure des cases du tableau
 typedef struct {
     char etat;
     bool flagged;
@@ -9,10 +10,11 @@ typedef struct {
     int nbMinesAdj;
 } Case;
 
+//Prototypes des fonctions
 Case** initTableau(int lignes, int colonnes);
 void placeMines(int lignes, int colonnes, int nbMines, Case** tableau, int firstx, int firsty);
 void compteMines(Case** tableau, int x, int y, int lignes, int colonnes);
-void afficheGrille(Case** tableau, int lignes, int colonnes, int cptflag);
+void afficheGrille(Case** tableau, int lignes, int colonnes);
 void libererGrille(Case** tableau, int lignes);
 void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines, int* cptflag);
 void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes, bool caseSelected);
@@ -20,6 +22,5 @@ void placerDrapeau(Case** tableau, int x, int y, int* cptflag);
 void enleverDrapeau(Case** tableau, int x, int y, int* cptflag);
 bool victoire(Case** tableau, int lignes, int colonnes, int nbMines);
 void afficheGrilleComplete(Case** tableau, int lignes, int colonnes);
-bool finDePartie();
 
 #endif // GRILLE_H

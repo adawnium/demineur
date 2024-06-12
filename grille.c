@@ -5,31 +5,32 @@
 #include "GFXLIB/GfxLib.h"
 #include "grille.h"
 
-void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines, int* cptflag) {
+
+// TODO: fonctions qui check les victoires
+// TODO: fonctions qui vérifie que toutes les cases ont été révélées
+// TODO: fonction fin de partie
+
+void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines) {
 	switch (difficulte) {
 		case 1:
 			*lignes = 15;
 			*colonnes = 10;
 			*mines = 18;
-			*cptflag = 18;
 			break;
 		case 2:
 			*lignes = 20;
 			*colonnes = 15;
 			*mines = 45;
-			*cptflag = 45;
 			break;
 		case 3:
 			*lignes = 25;
 			*colonnes = 20;
 			*mines = 100;
-			*cptflag = 100;
 			break;
 		case 4:
 			*lignes = 5;
 			*colonnes = 5;
 			*mines = 3;
-			*cptflag = 3;
 			break;
 		default:
 			printf("Erreur de saisie\n");
@@ -37,6 +38,7 @@ void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines, int
 	}
 }
 
+// Initialise le tableau 2D de cases
 // Initialisation du tableau de cases
 Case** initTableau(int lignes, int colonnes) {
 	Case** tableau = (Case**) malloc(lignes * sizeof(Case*));
@@ -46,7 +48,7 @@ Case** initTableau(int lignes, int colonnes) {
 			tableau[i][j].etat = '.';
 			tableau[i][j].flagged = false;
 			tableau[i][j].hasMine = false;
-			tableau[i][j].revealed = false;
+			tableau[i][j].revealed = false;  // TODO: changer à false
 			tableau[i][j].nbMinesAdj = 0;
 		}
 	}
@@ -107,6 +109,7 @@ void placeMines(int lignes, int colonnes, int mines, Case** tableau, int x1er, i
 }
 
 // Compte le nombre de mines adjacentes à une case
+// Compte le nombre de mines adjacentes à une case
 void compteMines(Case** tableau, int x, int y, int lignes, int colonnes) {
 	int compteur = 0;
 	if (!tableau[x][y].hasMine) {
@@ -131,10 +134,12 @@ void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes, bool cas
 		}
 		return;
 	}
-	if (tableau[x][y].flagged) {
-		printf("Ouvre les knoeils y'a un drapeau la tsssss\n");
-		return;
-	}
+
+    if (tableau[x][y].flagged) {
+        printf("Ouvre les knoeils y'a un drapeau la tsssss\n");
+        return;
+    }
+
 	tableau[x][y].revealed = true;
 	tableau[x][y].etat = tableau[x][y].nbMinesAdj + '0';
 	caseSelected = false;
@@ -147,24 +152,38 @@ void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes, bool cas
 	}
 }
 
-void placerDrapeau(Case** tableau, int x, int y, int* cptflag) {
+// Place un drapeau sur la case
+void placerDrapeau(Case** tableau, int x, int y) {
 	if (tableau[x][y].revealed || tableau[x][y].flagged) {
 		printf("%s", tableau[x][y].revealed ? "Case deja revelee\n" : "Drapeau deja place tsssss\n");
 		return;
 	}
+
 	tableau[x][y].flagged = true;
 	tableau[x][y].etat = 'F';
-	*cptflag -= 1;
 }
 
-void enleverDrapeau(Case** tableau, int x, int y, int* cptflag) {
+// Enlève le drapeau de la case
+void enleverDrapeau(Case** tableau, int x, int y) {
 	if (tableau[x][y].revealed || !tableau[x][y].flagged) {
 		printf("Ouvre les knoeils y'a pas de drapeau la tsssss\n");
 		return;
 	}
+
 	tableau[x][y].flagged = false;
 	tableau[x][y].etat = '.';
-	*cptflag += 1;
+}
+
+///////////////////////A REVOIR///////////////////////////
+int verifCasesRevelees(Case** tableau, int lignes, int colonnes) {
+	for (int i = 0; i < lignes; i++) {
+		for (int j = 0; j < colonnes; j++) {
+			if (!tableau[i][j].revealed && !tableau[i][j].hasMine) {
+				return 0;
+			}
+		}
+	}
+	return 1;
 }
 
 bool victoire(Case** tableau, int lignes, int colonnes, int nbMines) {
@@ -178,6 +197,7 @@ bool victoire(Case** tableau, int lignes, int colonnes, int nbMines) {
 	}
 	return cpt == (lignes * colonnes) - nbMines;
 }
+///////////////////////////////////////////////////////////
 
 int main() {
 	bool rejouer = true;
@@ -244,17 +264,23 @@ int main() {
 					printf("Veuillez choisir un chiffre entre 1 et 3\n");
 					break;
 			}
+		} else if (choix == 2) {
+			placerDrapeau(tableau, x - 1, y - 1);
+		} else if (choix == 3) {
+			enleverDrapeau(tableau, x - 1, y - 1);
+		} else {
+			printf("Veuillez choisir un chiffre entre 1 et 3\n");
 		}
-		if (victoire(tableau, lignes, colonnes, mines)) {
-			printf("WHOWHWOHWOWHOHWOWHOHWOWHOWHOWHOHWOWHHO SPECE DE NOOOOOB T'A GAGNE\n");
-			afficheGrilleComplete(tableau, lignes, colonnes);
-		}
-		printf("Veux tu rejouer ? (oui = 1)\n");
-		scanf("%d", &choix);
-		if (choix == 1) {
-			rejouer = true;
-		}
-		libererGrille(tableau, lignes);
+
+		// gameTermine = verifCasesRevelees(tableau, lignes, colonnes);
 	}
+
+	if (victoire(tableau, lignes, colonnes, mines)) {
+		printf("WHOWHWOHWOWHOHWOWHOHWOWHOWHOWHOHWOWHHO SPECE DE NOOOOOB T'A GAGNE\n");
+		afficheGrilleComplete(tableau, lignes, colonnes);
+	}
+
+	libererGrille(tableau, lignes);
+
 	return 0;
 }
