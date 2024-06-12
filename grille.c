@@ -67,7 +67,7 @@ void afficheGrille(Case** tableau, int lignes, int colonnes, int cptflag) {
 		}
 		printf("\n");
 	}
-	printf("Nombre de drapeau restant : %d\n", cptflag);
+	printf("Nombre de drapeau(x) restant(s) : %d\n", cptflag);
 }
 
 void afficheGrilleComplete(Case** tableau, int lignes, int colonnes) {
@@ -118,9 +118,9 @@ void compteMines(Case** tableau, int x, int y, int lignes, int colonnes) {
 	}
 }
 
-void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes, bool caseselected) {
+void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes, bool caseSelected) {
 	if (x < 0 || x >= lignes || y < 0 || y >= colonnes || tableau[x][y].revealed) {
-		if(caseselected){
+		if(caseSelected){
 			printf("Choisis une autre case\n");
 		}
 		return;
@@ -131,11 +131,11 @@ void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes, bool cas
 	}
 	tableau[x][y].revealed = true;
 	tableau[x][y].etat = tableau[x][y].nbMinesAdj + '0';
-	caseselected = false;
+	caseSelected = false;
 	if (tableau[x][y].nbMinesAdj == 0) {
 		for (int i = -1; i <= 1; i++) {
 			for (int j = -1; j <= 1; j++) {
-				reveleCase(tableau, x + i, y + j, lignes, colonnes, caseselected);
+				reveleCase(tableau, x + i, y + j, lignes, colonnes, caseSelected);
 			}
 		}
 	}
@@ -174,6 +174,7 @@ bool victoire(Case** tableau, int lignes, int colonnes, int nbMines) {
 int main() {
 	bool rejouer = true;
 	srand(time(NULL));
+
 	while(rejouer) {
 		int lignes = 0;
 		int colonnes = 0;
@@ -185,20 +186,27 @@ int main() {
 		int cptflag = 0;
 		bool caseselected = true;
 		rejouer = false;
+
 		printf("Choisissez la difficulte :\n1. Facile\n2. Moyen\n3. Difficile\n4. Test\n");
 		scanf("%d", &difficulte);
+
 		choixDifficulte(difficulte, &lignes, &colonnes, &mines, &cptflag);
+
 		Case** tableau = initTableau(lignes, colonnes);
 		afficheGrille(tableau, lignes, colonnes, cptflag);
+
 		printf("Entrez les coordonnees de la premiere case a devoiler (y x) : ");
 		scanf("%d %d", &x, &y);
+
 		placeMines(lignes, colonnes, mines, tableau, x, y);
+
 		for (int i = 0; i < lignes; i++) {
 			for (int j = 0; j < colonnes; j++) {
 				compteMines(tableau, i, j, lignes, colonnes);
 			}
 		}
 		reveleCase(tableau, x - 1, y - 1, lignes, colonnes, caseselected);
+
 		while (!victoire(tableau, lignes, colonnes, mines)) {
 			afficheGrille(tableau, lignes, colonnes, cptflag);
 			printf("1. Reveler une case\n2. Placer un drapeau\n3. Enlever un drapeau\n");
