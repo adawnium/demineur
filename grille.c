@@ -37,6 +37,7 @@ void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines, int
 	}
 }
 
+// Initialisation du tableau de cases
 Case** initTableau(int lignes, int colonnes) {
 	Case** tableau = (Case**) malloc(lignes * sizeof(Case*));
 	for (int i = 0; i < lignes; i++) {
@@ -52,6 +53,7 @@ Case** initTableau(int lignes, int colonnes) {
 	return tableau;
 }
 
+// Affichage de la grille
 void afficheGrille(Case** tableau, int lignes, int colonnes, int cptflag) {
 	for (int i = 0; i < lignes; i++) {
 		for (int j = 0; j < colonnes; j++) {
@@ -70,6 +72,7 @@ void afficheGrille(Case** tableau, int lignes, int colonnes, int cptflag) {
 	printf("Nombre de drapeau(x) restant(s) : %d\n", cptflag);
 }
 
+// Affichage de la grille complete pour les victoires et défaites
 void afficheGrilleComplete(Case** tableau, int lignes, int colonnes) {
 	for (int i = 0; i < lignes; i++) {
 		for (int j = 0; j < colonnes; j++) {
@@ -91,17 +94,19 @@ void libererGrille(Case** tableau, int lignes) {
 	free(tableau);
 }
 
+// Placement des mines
 void placeMines(int lignes, int colonnes, int mines, Case** tableau, int x1er, int y1er) {
 	for(int k = 0; k < mines; k++) {
 		int i, j;
 		do {
 			i = rand() % lignes;
 			j = rand() % colonnes;
-		} while(tableau[i][j].hasMine || (abs(i - x1er + 1) <= 1 && abs(j - y1er + 1) <= 1));
+		} while(tableau[i][j].hasMine || (abs(i - x1er + 1) <= 1 && abs(j - y1er + 1) <= 1)); // Continue tant qu'une mine est déjà présente ou que la case est voisine de la première case à dévoiler
 		tableau[i][j].hasMine = true;
 	}
 }
 
+// Compte le nombre de mines adjacentes à une case
 void compteMines(Case** tableau, int x, int y, int lignes, int colonnes) {
 	int compteur = 0;
 	if (!tableau[x][y].hasMine) {
@@ -118,6 +123,7 @@ void compteMines(Case** tableau, int x, int y, int lignes, int colonnes) {
 	}
 }
 
+// Révèle une case
 void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes, bool caseSelected) {
 	if (x < 0 || x >= lignes || y < 0 || y >= colonnes || tableau[x][y].revealed) {
 		if(caseSelected){
