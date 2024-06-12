@@ -13,7 +13,7 @@ typedef struct {
     int nbMinesAdj;
 } Case;
 
-//Prototypes des fonctions
+//Prototypes des fonctions TODO: put in the header file
 Case** initTableau(int lignes, int colonnes);
 void placeMines(int lignes, int colonnes, int nbMines, Case** tableau, int firstx, int firsty);
 void compteMines(Case** tableau, int x, int y, int lignes, int colonnes);
