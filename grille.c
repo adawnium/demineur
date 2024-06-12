@@ -143,6 +143,7 @@ void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes, bool cas
 
 void placerDrapeau(Case** tableau, int x, int y, int* cptflag) {
 	if (tableau[x][y].revealed || tableau[x][y].flagged) {
+		printf("Ouvre les knoeils y'a un drapeau la tsssss\n");
 		return;
 	}
 	tableau[x][y].flagged = true;
@@ -152,6 +153,7 @@ void placerDrapeau(Case** tableau, int x, int y, int* cptflag) {
 
 void enleverDrapeau(Case** tableau, int x, int y, int* cptflag) {
 	if (tableau[x][y].revealed || !tableau[x][y].flagged) {
+		printf("Ouvre les knoeils y'a pas de drapeau la tsssss\n");
 		return;
 	}
 	tableau[x][y].flagged = false;
