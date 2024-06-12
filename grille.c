@@ -6,10 +6,6 @@
 #include "grille.h"
 
 
-// TODO: fonctions qui check les victoires
-// TODO: fonctions qui vérifie que toutes les cases ont été révélées
-// TODO: fonction fin de partie
-
 void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines) {
 	switch (difficulte) {
 		case 1:
@@ -38,7 +34,6 @@ void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines) {
 	}
 }
 
-// Initialise le tableau 2D de cases
 // Initialisation du tableau de cases
 Case** initTableau(int lignes, int colonnes) {
 	Case** tableau = (Case**) malloc(lignes * sizeof(Case*));
@@ -109,7 +104,6 @@ void placeMines(int lignes, int colonnes, int mines, Case** tableau, int x1er, i
 }
 
 // Compte le nombre de mines adjacentes à une case
-// Compte le nombre de mines adjacentes à une case
 void compteMines(Case** tableau, int x, int y, int lignes, int colonnes) {
 	int compteur = 0;
 	if (!tableau[x][y].hasMine) {
@@ -174,7 +168,7 @@ void enleverDrapeau(Case** tableau, int x, int y) {
 	tableau[x][y].etat = '.';
 }
 
-///////////////////////A REVOIR///////////////////////////
+
 int verifCasesRevelees(Case** tableau, int lignes, int colonnes) {
 	for (int i = 0; i < lignes; i++) {
 		for (int j = 0; j < colonnes; j++) {
@@ -197,7 +191,6 @@ bool victoire(Case** tableau, int lignes, int colonnes, int nbMines) {
 	}
 	return cpt == (lignes * colonnes) - nbMines;
 }
-///////////////////////////////////////////////////////////
 
 int main() {
 	bool rejouer = true;
@@ -272,7 +265,6 @@ int main() {
 			printf("Veuillez choisir un chiffre entre 1 et 3\n");
 		}
 
-		// gameTermine = verifCasesRevelees(tableau, lignes, colonnes);
 	}
 
 	if (victoire(tableau, lignes, colonnes, mines)) {
