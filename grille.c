@@ -37,6 +37,7 @@ void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines, int
 	}
 }
 
+
 Case** initTableau(int lignes, int colonnes) {
 	Case** tableau = (Case**) malloc(lignes * sizeof(Case*));
 	for (int i = 0; i < lignes; i++) {
