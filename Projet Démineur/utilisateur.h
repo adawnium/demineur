@@ -1,6 +1,6 @@
 #ifndef UTILISATEUR_H
 #define UTILISATEUR_H
 
-void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte);
+void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag);
 
 #endif // UTILISATEUR_H

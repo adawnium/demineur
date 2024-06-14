@@ -17,13 +17,13 @@
 
 void gestionEvenement(EvenementGfx evenement) {
 	static bool pleinEcran = false; // Pour savoir si on est en mode plein ecran ou pas
-	static int etat = 1;
 	static bool fondBlanc = true;
 	static int difficulte = 0;
-	static lignes = 0;
+	static int lignes = 0;
 	static int colonnes = 0;
-	static mines = 0;
-	static cptflag = 0;
+	static int mines = 0;
+	static int cptflag = 0;
+	Case** tableau = NULL;
 	
 
 	switch (evenement)
@@ -48,24 +48,8 @@ void gestionEvenement(EvenementGfx evenement) {
 				pageAccueil(fondBlanc);
 			}
 			else{
-				dessineGrille(lignes, colonnes);
-			}
-				
-			/*switch(difficulte){
-				case 1:
-				    dessineGrille(lignes, colonnes);
-				    break;
-				case 2:
-				    dessineGrille(lignes, colonnes);
-				    break;
-				case 3:
-				    dessineGrille(lignes, colonnes);
-				    break;
-				default:
-				    pageAccueil();
-				    break;
-			}*/		
-			
+				dessineGrille(lignes, colonnes, fondBlanc);
+			}		
 			break;
 			
 		case Clavier:
@@ -110,7 +94,11 @@ void gestionEvenement(EvenementGfx evenement) {
 				case GaucheAppuye:
 					int x = abscisseSouris();
             				int y = ordonneeSouris();
-            				gererClicGauche(x, y, &lignes, &colonnes, &difficulte);
+            				gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag);
+            				if(difficulte == 0){
+            					Case** tableau = initTableau(lignes, colonnes);
+            				}
+					afficheGrille(tableau, lignes, colonnes, cptflag);
 					break;
 				case GaucheRelache:
 					break;
@@ -119,6 +107,14 @@ void gestionEvenement(EvenementGfx evenement) {
 					break;
 				case MilieuAppuye:
 				case MilieuRelache:
+					break;
+				case ScrollDown:
+					break;
+				case ScrollUp:
+					break;
+				case ScrollRight:
+					break;
+				case ScrollLeft:
 					break;
 			}
 			break;
@@ -135,7 +131,7 @@ void gestionEvenement(EvenementGfx evenement) {
 			break;
 	}
 }
-void dessineGrille(int lignes, int colonnes)
+void dessineGrille(int lignes, int colonnes, bool fondBlanc)
 {
     int largeur = largeurFenetre() - LARGEUR_SCORE;  // Réduire la largeur pour inclure l'espace du score
     int hauteur = hauteurFenetre();
@@ -147,9 +143,15 @@ void dessineGrille(int lignes, int colonnes)
     {
         for (int j = 0; j < colonnes; j++)
         {
-            int x = j * tailleCase;
-            int y = i * tailleCase;
-            couleurCourante(0, 0, 0);
+            int x = j * tailleCase + 1;
+            int y = i * tailleCase + 1;
+            if(fondBlanc)
+		{
+	      		couleurCourante(0, 0, 0);
+	      	}
+	      	else{
+	      		couleurCourante(255, 255, 255);
+	      	}
             rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
         }
     }

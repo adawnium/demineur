@@ -14,7 +14,7 @@
 #define HauteurFenetre 600
 #define LARGEUR_SCORE 350
 
-void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte)
+void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag)
 {
     if(*difficulte != 0){
 	    int largeur = largeurFenetre() - LARGEUR_SCORE;  // Réduire la largeur pour inclure l'espace du score
@@ -25,7 +25,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte)
 
 	    // Convertir les coordonnées du clic en coordonnées de la grille
 	    int colonneCliquee = x / tailleCase;
-	    int ligneCliquee = y / tailleCase;
+	    int ligneCliquee = *lignes - 1 - (y / tailleCase);
 
 	    // Vérifier si le clic est dans les limites de la grille
 	    if (colonneCliquee >= 0 && colonneCliquee < *colonnes && ligneCliquee >= 0 && ligneCliquee < *lignes)
@@ -50,24 +50,19 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte)
 	    {
 	   
 		*difficulte = 1;
-		*lignes = 15;
-		*colonnes = 10;
 	    }
 	    // Vérifier si le clic est sur le bouton "MOYEN"
 	    else if (x >= moyenX1 && x <= moyenX2 && y >= moyenY2 && y <= moyenY1)
 	    {
 		*difficulte = 2;
-		*lignes = 20;
-		*colonnes = 15;
 	    }
 	    // Vérifier si le clic est sur le bouton "DIFFICILE"
 	    else if (x >= difficileX1 && x <= difficileX2 && y >= difficileY2 && y <= difficileY1)
 	    {
 		*difficulte = 3;
-		*lignes = 25;
-		*colonnes = 20;
 	}
-	}
+	choixDifficulte(*difficulte, lignes, colonnes, mines, cptflag);
+}
 }
 
 
