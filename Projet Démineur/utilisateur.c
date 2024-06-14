@@ -14,7 +14,7 @@
 #define HauteurFenetre 600
 #define LARGEUR_SCORE 350
 
-void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag)
+void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case** tableau, bool *minetouche)
 {
     if(*difficulte != 0){
 	    int largeur = largeurFenetre() - LARGEUR_SCORE;  // Réduire la largeur pour inclure l'espace du score
@@ -31,11 +31,33 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 	    if (colonneCliquee >= 0 && colonneCliquee < *colonnes && ligneCliquee >= 0 && ligneCliquee < *lignes)
 	    {
 		printf("Case cliquée: (%d, %d)\n", ligneCliquee, colonneCliquee);
-		// Ajouter le code pour révéler la case ou placer/enlever un drapeau ici
-		// Exemple:
-		// reveleCase(tableau, ligneCliquee, colonneCliquee, LIGNES, COLONNES, caseselected);
+		if(*firstclick == false){
+			placeMines(*lignes, *colonnes, *mines, tableau, ligneCliquee, colonneCliquee);
+			for (int i = 0; i < *lignes; i++) {
+		for (int j = 0; j < *colonnes; j++) {
+				compteMines(tableau, i, j, *lignes, *colonnes);
+			}
+		}
+		bool caseselected = true;
+		reveleCase(tableau, ligneCliquee, colonneCliquee, *lignes, *colonnes, caseselected);
+			*firstclick = true;	
+		}
+		else {
+			if (!tableau[ligneCliquee][colonneCliquee].hasMine) {
+			bool caseselected = true;
+		     	reveleCase(tableau, ligneCliquee, colonneCliquee, *lignes, *colonnes, caseselected);
+		     	}
+		     	else{
+		     		*minetouche = false;
+		     	}	
+		}
 	    }
-    }
+	    
+	    else {
+	    	*dehors = true;
+	    }
+	    }
+    
     if(*difficulte == 0){
     	float lFenetre = largeurFenetre();
 	float hFenetre = hauteurFenetre();
@@ -65,5 +87,31 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 }
 }
 
+void gererClicDroit(int x, int y, int lignes, int colonnes, int difficulte, Case** tableau, int *cptflag)
+{
+    if(difficulte != 0){
+	    int largeur = largeurFenetre() - LARGEUR_SCORE;  // Réduire la largeur pour inclure l'espace du score
+	    int hauteur = hauteurFenetre();
+	    int largeurCase = largeur / colonnes;
+	    int hauteurCase = hauteur / lignes;
+	    int tailleCase = largeurCase < hauteurCase ? largeurCase : hauteurCase;
+
+	    // Convertir les coordonnées du clic en coordonnées de la grille
+	    int colonneCliquee = x / tailleCase;
+	    int ligneCliquee = lignes - 1 - (y / tailleCase);
+
+	    // Vérifier si le clic est dans les limites de la grille
+	    if (colonneCliquee >= 0 && colonneCliquee < colonnes && ligneCliquee >= 0 && ligneCliquee < lignes)
+	    {
+		printf("Case cliquée: (%d, %d)\n", ligneCliquee, colonneCliquee);
+		if(tableau[ligneCliquee][colonneCliquee].flagged == false){
+			placerDrapeau(tableau, ligneCliquee, colonneCliquee, cptflag);
+		}
+		else{
+			enleverDrapeau(tableau, ligneCliquee, colonneCliquee, cptflag);
+		}
+	    }
+    }
+}
 
 

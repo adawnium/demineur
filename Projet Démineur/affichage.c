@@ -23,9 +23,12 @@ void gestionEvenement(EvenementGfx evenement) {
 	static int colonnes = 0;
 	static int mines = 0;
 	static int cptflag = 0;
-	Case** tableau = NULL;
+	static Case** tableau = NULL;
+	static bool initialise = false;
+	static bool firstclick = false;
+	bool dehors = false;
+	static bool minetouche = false;
 	
-
 	switch (evenement)
 	{
 		case Initialisation:
@@ -53,7 +56,6 @@ void gestionEvenement(EvenementGfx evenement) {
 			break;
 			
 		case Clavier:
-			printf("%c : ASCII %d\n", caractereClavier(), caractereClavier());
 
 			switch (caractereClavier())
 			{
@@ -92,17 +94,34 @@ void gestionEvenement(EvenementGfx evenement) {
 			switch (etatBoutonSouris())
 			{
 				case GaucheAppuye:
+					if(!minetouche){
 					int x = abscisseSouris();
             				int y = ordonneeSouris();
-            				gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag);
-            				if(difficulte == 0){
-            					Case** tableau = initTableau(lignes, colonnes);
+            				gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche);
+            				if(difficulte != 0 && !initialise){
+            					tableau = initTableau(lignes, colonnes);
+            					initialise = !initialise;
             				}
-					afficheGrille(tableau, lignes, colonnes, cptflag);
+            				if(initialise && !dehors && !minetouche){
+            				afficheGrille(tableau, lignes, colonnes, cptflag);
+            				}
+            				if(minetouche){
+            					printf("PERDU TU ES BETEUH\n\n");
+		            			afficheGrilleComplete(tableau, lignes, colonnes);
+            				}
+            				dehors = false;
+					}
 					break;
 				case GaucheRelache:
 					break;
 				case DroiteAppuye:
+					if(!minetouche){
+					int x = abscisseSouris();
+            				int y = ordonneeSouris();
+            				gererClicDroit(x, y, lignes, colonnes, difficulte, tableau, &cptflag);
+					afficheGrille(tableau, lignes, colonnes, cptflag);
+					}
+					break;
 				case DroiteRelache:
 					break;
 				case MilieuAppuye:
