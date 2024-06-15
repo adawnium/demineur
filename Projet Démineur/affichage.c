@@ -98,7 +98,6 @@ void gestionEvenement(EvenementGfx evenement) {
                             printf("GG TU AS GAGNE\n\n");
                             afficheGrilleComplete(tableau, lignes, colonnes);
                         }
-                        dehors = false;
                     }
                     break;
                 case GaucheRelache:

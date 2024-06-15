@@ -115,7 +115,7 @@ void placeMines(int lignes, int colonnes, int mines, Case** tableau, int x, int 
         do {
             i = rand() % lignes;
             j = rand() % colonnes;
-        } while(tableau[i][j].hasMine || (abs(i - x + 1) <= 1 && abs(j - y + 1) <= 1)); // Continue tant qu'une mine est déjà présente ou que la case est voisine de la première case à dévoiler
+        } while(tableau[i][j].hasMine || (abs(i - x) <= 1 && abs(j - y) <= 1)); // Continue tant qu'une mine est déjà présente ou que la case est voisine de la première case à dévoiler
         tableau[i][j].hasMine = true;
     }
 }
