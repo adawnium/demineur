@@ -109,6 +109,7 @@ void placeMines(int lignes, int colonnes, int mines, Case** tableau, int x, int 
         printf("Pointeur nul (placeMines)\n");
         return;
     }
+    srand(time(NULL));
     for(int k = 0; k < mines; k++) {
         int i, j;
         do {

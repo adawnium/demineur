@@ -1,16 +1,16 @@
 #include <stdlib.h> // Pour pouvoir utiliser exit()
-#include <stdio.h>	// Pour pouvoir utiliser printf()
-#include <math.h>	// Pour pouvoir utiliser sin() et cos()
+#include <stdio.h> // Pour pouvoir utiliser printf()
+#include <math.h> // Pour pouvoir utiliser sin() et cos()
 #include <stdbool.h>
 #include <time.h>
 #include "grille.h"
 #include "GFXLIB/GfxLib.h" // Seul cet include est necessaire pour faire du graphique
 #include "GFXLIB/BmpLib.h" // Cet include permet de manipuler des fichiers BMP
-#include "GFXLIB/ESLib.h"  // Pour utiliser valeurAleatoire()
+#include "GFXLIB/ESLib.h" // Pour utiliser valeurAleatoire()
 #include "affichage.h"
 #include "utilisateur.h"
 
-#define LargeurFenetre 900
+#define LargeurFenetre 900 
 #define HauteurFenetre 600
 #define LARGEUR_SCORE 350
 
@@ -33,7 +33,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 		{
 			printf("Case cliquée: (%d, %d)\n", ligneCliquee, colonneCliquee);
 			if (*firstclick == false)
-			{
+			{	
 				placeMines(*lignes, *colonnes, *mines, tableau, ligneCliquee, colonneCliquee);
 				for (int i = 0; i < *lignes; i++)
 				{
@@ -45,8 +45,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 				bool caseselected = true;
 				reveleCase(tableau, ligneCliquee, colonneCliquee, *lignes, *colonnes, caseselected);
 				*firstclick = true;
-			}
-			else
+			} else
 			{
 				if (!tableau[ligneCliquee][colonneCliquee].hasMine)
 				{
@@ -55,7 +54,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 				}
 				else
 				{
-					*minetouche = false;
+					*minetouche = true;
 				}
 			}
 		}
@@ -96,32 +95,31 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 	}
 }
 
-void gererClicDroit(int x, int y, int lignes, int colonnes, int difficulte, Case **tableau, int *cptflag)
+void gererClicDroit(int x, int y, int lignes, int colonnes, int difficulte, Case** tableau, int *cptflag)
 {
-	if (difficulte != 0)
-	{
-		int largeur = largeurFenetre() - LARGEUR_SCORE; // Réduire la largeur pour inclure l'espace du score
-		int hauteur = hauteurFenetre();
-		int largeurCase = largeur / colonnes;
-		int hauteurCase = hauteur / lignes;
-		int tailleCase = largeurCase < hauteurCase ? largeurCase : hauteurCase;
+    if(difficulte != 0){
+	    int largeur = largeurFenetre() - LARGEUR_SCORE;  // Réduire la largeur pour inclure l'espace du score
+	    int hauteur = hauteurFenetre();
+	    int largeurCase = largeur / colonnes;
+	    int hauteurCase = hauteur / lignes;
+	    int tailleCase = largeurCase < hauteurCase ? largeurCase : hauteurCase;
 
-		// Convertir les coordonnées du clic en coordonnées de la grille
-		int colonneCliquee = x / tailleCase;
-		int ligneCliquee = lignes - 1 - (y / tailleCase);
+	    // Convertir les coordonnées du clic en coordonnées de la grille
+	    int colonneCliquee = x / tailleCase;
+	    int ligneCliquee = lignes - 1 - (y / tailleCase);
 
-		// Vérifier si le clic est dans les limites de la grille
-		if (colonneCliquee >= 0 && colonneCliquee < colonnes && ligneCliquee >= 0 && ligneCliquee < lignes)
-		{
-			printf("Case cliquée: (%d, %d)\n", ligneCliquee, colonneCliquee);
-			if (tableau[ligneCliquee][colonneCliquee].flagged == false)
-			{
-				placerDrapeau(tableau, ligneCliquee, colonneCliquee, cptflag);
-			}
-			else
-			{
-				enleverDrapeau(tableau, ligneCliquee, colonneCliquee, cptflag);
-			}
+	    // Vérifier si le clic est dans les limites de la grille
+	    if (colonneCliquee >= 0 && colonneCliquee < colonnes && ligneCliquee >= 0 && ligneCliquee < lignes)
+	    {
+		printf("Case cliquée: (%d, %d)\n", ligneCliquee, colonneCliquee);
+		if(tableau[ligneCliquee][colonneCliquee].flagged == false){
+			placerDrapeau(tableau, ligneCliquee, colonneCliquee, cptflag);
 		}
-	}
+		else{
+			enleverDrapeau(tableau, ligneCliquee, colonneCliquee, cptflag);
+		}
+	    }
+    }
 }
+
+

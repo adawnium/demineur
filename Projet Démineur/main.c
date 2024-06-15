@@ -8,7 +8,7 @@
 #include "utilisateur.h"
 
 #define LargeurFenetre 900
-#define HauteurFenetre 600
+#define HauteurFenetre 601
 
 int main(int argc, char **argv) {
 	initialiseGfx(argc, argv);
