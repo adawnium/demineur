@@ -159,6 +159,32 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc)
             rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
         }
     }
+
+    float lFenetre = largeurFenetre();
+	float hFenetre = hauteurFenetre();
+    
+    char titre[] = "DEMIEUR";
+    int taillePolice = 20;
+    afficheChaine(titre, taillePolice, lFenetre*6.5/11, hFenetre*11/15);
+	epaisseurDeTrait(5);
+    //couleurCourante(80, 80, 80);
+    //srectangle(lFenetre*5/6, hFenetre*4/5, lFenetre*6/11, hFenetre*2/3);
+	
+	couleurCourante(80, 80, 80);
+    rectangle(lFenetre*5/6, hFenetre*2/5, lFenetre*6/11, hFenetre*1/4);
+        
+    if(fondBlanc)
+    {
+    	couleurCourante(0, 0, 0);
+    }
+    else{
+    	couleurCourante(255, 255, 255);
+    }
+    epaisseurDeTrait(1);
+    char facile[] = "Changer de niveau";
+    taillePolice = 20;
+    afficheChaine(facile, taillePolice, lFenetre*6.5/11, hFenetre*5/16);
+
 }
 
 void pageAccueil(bool fondBlanc){
