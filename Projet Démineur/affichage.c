@@ -28,6 +28,7 @@ void gestionEvenement(EvenementGfx evenement) {
     static bool firstclick = false;
     bool dehors = false;
     static bool minetouche = false;
+    static bool win = false;
 
     switch (evenement) {
         case Initialisation:
@@ -78,10 +79,10 @@ void gestionEvenement(EvenementGfx evenement) {
         case BoutonSouris:
             switch (etatBoutonSouris()) {
                 case GaucheAppuye:
-                    if (!minetouche) {
+                    if (!minetouche && !win) {
                         int x = abscisseSouris();
                         int y = ordonneeSouris();
-                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche);
+                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win);
                         if (difficulte != 0 && !initialise) {
                             tableau = initTableau(lignes, colonnes);
                             initialise = !initialise;
@@ -91,6 +92,10 @@ void gestionEvenement(EvenementGfx evenement) {
                         }
                         if (minetouche) {
                             printf("PERDU TU ES BETEUH\n\n");
+                            afficheGrilleComplete(tableau, lignes, colonnes);
+                        }
+                        if (win) {
+                            printf("GG TU AS GAGNE\n\n");
                             afficheGrilleComplete(tableau, lignes, colonnes);
                         }
                         dehors = false;

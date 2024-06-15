@@ -14,7 +14,7 @@
 #define HauteurFenetre 600
 #define LARGEUR_SCORE 350
 
-void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche)
+void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche, bool *win)
 {
 	if (*difficulte != 0)
 	{
@@ -51,6 +51,9 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 				{
 					bool caseselected = true;
 					reveleCase(tableau, ligneCliquee, colonneCliquee, *lignes, *colonnes, caseselected);
+					if(victoire(tableau, *lignes, *colonnes, *mines)){
+						*win = true;
+					}
 				}
 				else
 				{
