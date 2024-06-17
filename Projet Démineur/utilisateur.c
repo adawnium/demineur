@@ -14,7 +14,7 @@
 #define HauteurFenetre 600
 #define LARGEUR_SCORE 400
 
-void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche, bool *win, bool *initialise)
+void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche, bool *win, bool *initialise, time_t *startTime)
 {	
 	float lFenetre = largeurFenetre();
 	float hFenetre = hauteurFenetre();
@@ -47,6 +47,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 				}
 				bool caseselected = true;
 				reveleCase(tableau, ligneCliquee, colonneCliquee, *lignes, *colonnes, caseselected);
+				*startTime = time(NULL);
 				*firstclick = true;
 			} else
 			{
