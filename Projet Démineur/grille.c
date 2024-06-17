@@ -32,7 +32,6 @@ void choixDifficulte(int difficulte, int* lignes, int* colonnes, int* mines, int
 			*cptflag = 3;
 			break;
 		default:
-			printf("Erreur de saisie\n");
 			break;
 	}
 }

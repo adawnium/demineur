@@ -11,9 +11,9 @@
 #include "utilisateur.h"
 
 // Largeur et hauteur par defaut d'une image correspondant a nos criteres
-#define LargeurFenetre 900  // Augmenté pour inclure l'espace du score
+#define LargeurFenetre 800  // Augmenté pour inclure l'espace du score
 #define HauteurFenetre 600
-#define LARGEUR_SCORE 350
+#define LARGEUR_SCORE 400
 
 void gestionEvenement(EvenementGfx evenement) {
     static bool pleinEcran = false;
@@ -46,7 +46,7 @@ void gestionEvenement(EvenementGfx evenement) {
             if (difficulte == 0) {
                 pageAccueil(fondBlanc);
             } else {
-                dessineGrille(lignes, colonnes, fondBlanc);
+                dessineGrille(lignes, colonnes, fondBlanc, win, minetouche, tableau, cptflag);
             }
             break;
         case Clavier:
@@ -79,10 +79,10 @@ void gestionEvenement(EvenementGfx evenement) {
         case BoutonSouris:
             switch (etatBoutonSouris()) {
                 case GaucheAppuye:
-                    if (!minetouche && !win) {
-                        int x = abscisseSouris();
+                	int x = abscisseSouris();
                         int y = ordonneeSouris();
-                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win);
+                    if (!minetouche && !win) {
+                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win, &initialise);
                         if (difficulte != 0 && !initialise) {
                             tableau = initTableau(lignes, colonnes);
                             initialise = !initialise;
@@ -96,14 +96,27 @@ void gestionEvenement(EvenementGfx evenement) {
                         }
                         if (win) {
                             printf("GG TU AS GAGNE\n\n");
-                            afficheGrilleComplete(tableau, lignes, colonnes);
+                            afficheGrilleComplete(tableau, lignes, colonnes);   
                         }
                     }
+                    if ((win || minetouche) && x >= largeurFenetre()*1.5/8 && x <= largeurFenetre()*3.5/8 && y >= hauteurFenetre()*4/12 && y <= hauteurFenetre()*6/12) {
+                        // Rejouer
+                        firstclick = false;
+                        minetouche = false;
+                        win = false;
+                        libererGrille(tableau, lignes);
+                        tableau = initTableau(lignes, colonnes);
+                        afficheGrille(tableau, lignes, colonnes, cptflag);
+                    } else if ((win || minetouche) && x >= largeurFenetre()*4.5/8 && x <= largeurFenetre()*6.5/8 && y >= hauteurFenetre()*4/12 && y <= hauteurFenetre()*6/12) {
+                        // Quitter
+                        termineBoucleEvenements();
+                    }
+                    
                     break;
                 case GaucheRelache:
                     break;
                 case DroiteAppuye:
-                    if (!minetouche) {
+                    if (!minetouche && firstclick) {
                         int x = abscisseSouris();
                         int y = ordonneeSouris();
                         gererClicDroit(x, y, lignes, colonnes, difficulte, tableau, &cptflag);
@@ -135,56 +148,130 @@ void gestionEvenement(EvenementGfx evenement) {
             break;
     }
 }
-void dessineGrille(int lignes, int colonnes, bool fondBlanc)
-{
-    int largeur = largeurFenetre() - LARGEUR_SCORE;  // Réduire la largeur pour inclure l'espace du score
+void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool minetouche, Case **tableau, int cptflag) {
+    int largeur = largeurFenetre();
+    int largeurgrille = largeurFenetre() - LARGEUR_SCORE;
     int hauteur = hauteurFenetre();
-    int largeurCase = largeur / colonnes;
+    int largeurCase = largeurgrille / colonnes;
     int hauteurCase = hauteur / lignes;
     int tailleCase = largeurCase < hauteurCase ? largeurCase : hauteurCase;
-
-    for (int i = 0; i < lignes; i++)
-    {
-        for (int j = 0; j < colonnes; j++)
+    if(fondBlanc)
         {
+      		couleurCourante(0, 0, 0);
+      	}
+      	else{
+      		couleurCourante(255, 255, 255);
+      	}
+
+    // Dessiner les cases de la grille
+    for (int i = 0; i < lignes; i++) {
+        for (int j = 0; j < colonnes; j++) {
             int x = j * tailleCase + 1;
             int y = i * tailleCase + 1;
-            if(fondBlanc)
+            rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
+        }
+    }
+    	epaisseurDeTrait(1);
+        char titre[] = "DEMINEUR";
+        int taillePolice = 25;
+        afficheChaine(titre, taillePolice, largeur*5/8, hauteur*11/12);
+        
+        char chrono[] = "chronometre";
+        afficheChaine(chrono, taillePolice, largeur*5/8, hauteur*9.5/12);
+        
+        char flag[50];
+        sprintf(flag, "Mines restantes: %d", cptflag);
+        afficheChaine(flag, taillePolice, largeur*5/8, hauteur*8/12);
+        
+        rectangle(largeur*5/8, hauteur*7/12, largeur*7/8, hauteur*5.5/12);
+        rectangle(largeur*5/8, hauteur*4.5/12, largeur*7/8, hauteur*3/12);
+        rectangle(largeur*5/8, hauteur*2/12, largeur*7/8, hauteur*0.5/12);
+        
+        if(fondBlanc)
+        {
+      		couleurCourante(255, 255, 255);
+      	}
+      	else{
+      		couleurCourante(0, 0, 0);
+      	}
+        
+        taillePolice = 20;
+        char recommencer[] = "Recommencer";
+        afficheChaine(recommencer, taillePolice, largeur*5.3/8, hauteur*6.25/12);
+        char EcranTitre[] = "Ecran titre";
+        afficheChaine(EcranTitre, taillePolice, largeur*5.5/8, hauteur*1.25/12);
+        taillePolice = 15;
+        char switchNiveau[] = "Changer de niveau";
+        afficheChaine(switchNiveau, taillePolice, largeur*5.25/8, hauteur*3.75/12);
+        if(win || minetouche){
+        	if(fondBlanc)
+		{
+	      		couleurCourante(255, 255, 255);
+	      	}
+	      	else{
+	      		couleurCourante(0, 0, 0);
+	      	}
+        	// Dessiner le rectangle principal
+		    int rectX1 = largeur * 1 / 8;
+		    int rectY1 = hauteur * 9 / 12;
+		    int rectX2 = largeur * 7 / 8;
+		    int rectY2 = hauteur * 3 / 12;
+		    rectangle(rectX1, rectY1, rectX2, rectY2);
+
+		    // Surligner les bords du rectangle
+		    epaisseurDeTrait(3);
+		    couleurCourante(255, 0, 0); // Rouge pour les lignes surlignées
+
+		    // Ligne supérieure
+		    ligne(rectX1 - 2, rectY1 + 2, rectX2 + 2, rectY1 + 2);
+		    ligne(rectX1 - 1, rectY1 + 1, rectX2 + 1, rectY1 + 1);
+
+		    // Ligne inférieure
+		    ligne(rectX1 - 2, rectY2 - 2, rectX2 + 2, rectY2 - 2);
+		    ligne(rectX1 - 1, rectY2 - 1, rectX2 + 1, rectY2 - 1);
+
+		    // Ligne gauche
+		    ligne(rectX1 - 2, rectY1 + 2, rectX1 - 2, rectY2 - 2);
+		    ligne(rectX1 - 1, rectY1 + 1, rectX1 - 1, rectY2 - 1);
+
+		    // Ligne droite
+		    ligne(rectX2 + 2, rectY1 + 2, rectX2 + 2, rectY2 - 2);
+		    ligne(rectX2 + 1, rectY1 + 1, rectX2 + 1, rectY2 - 1);
+
+		    epaisseurDeTrait(1);// Peut-être rajouter des lignes pour que ça se voit plus
+        	if(fondBlanc)
 		{
 	      		couleurCourante(0, 0, 0);
 	      	}
 	      	else{
 	      		couleurCourante(255, 255, 255);
 	      	}
-            rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
+        	rectangle(largeur*1.5/8, hauteur*6/12, largeur*3.5/8, hauteur*4/12);
+        	rectangle(largeur*4.5/8, hauteur*6/12, largeur*6.5/8, hauteur*4/12);
+        	taillePolice=30;
+        	if(win){
+        		char gagne[]="GG TU AS GAGNE";
+        		afficheChaine(gagne, taillePolice, largeur*2.5/8, hauteur*7.5/12);
+        	}
+        	if(minetouche){
+        		char perdu[]="PERDU TU ES BETEUH";
+        		afficheChaine(perdu, taillePolice, largeur*2/8, hauteur*7.5/12);
+        	}
+        	if(fondBlanc)
+		{
+	      		couleurCourante(255, 255, 255);
+	      	}
+	      	else{
+	      		couleurCourante(0, 0, 0);
+	      	}
+        	taillePolice=15;
+        	char rejouer[]="Rejouer";
+        	afficheChaine(rejouer, taillePolice, largeur*2.25/8, hauteur*5/12);
+        	char quitter[]="Quitter";
+        	afficheChaine(quitter, taillePolice, largeur*5.25/8, hauteur*5/12);
+        	
         }
-    }
-
-    float lFenetre = largeurFenetre();
-	float hFenetre = hauteurFenetre();
     
-    char titre[] = "DEMIEUR";
-    int taillePolice = 20;
-    afficheChaine(titre, taillePolice, lFenetre*6.5/11, hFenetre*11/15);
-	epaisseurDeTrait(5);
-    //couleurCourante(80, 80, 80);
-    //srectangle(lFenetre*5/6, hFenetre*4/5, lFenetre*6/11, hFenetre*2/3);
-	
-	couleurCourante(80, 80, 80);
-    rectangle(lFenetre*5/6, hFenetre*2/5, lFenetre*6/11, hFenetre*1/4);
-        
-    if(fondBlanc)
-    {
-    	couleurCourante(0, 0, 0);
-    }
-    else{
-    	couleurCourante(255, 255, 255);
-    }
-    epaisseurDeTrait(1);
-    char facile[] = "Changer de niveau";
-    taillePolice = 20;
-    afficheChaine(facile, taillePolice, lFenetre*6.5/11, hFenetre*5/16);
-
 }
 
 void pageAccueil(bool fondBlanc){

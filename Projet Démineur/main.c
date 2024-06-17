@@ -7,7 +7,7 @@
 #include "affichage.h"
 #include "utilisateur.h"
 
-#define LargeurFenetre 900
+#define LargeurFenetre 800
 #define HauteurFenetre 601
 
 int main(int argc, char **argv) {

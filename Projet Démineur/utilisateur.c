@@ -10,13 +10,16 @@
 #include "affichage.h"
 #include "utilisateur.h"
 
-#define LargeurFenetre 900 
+#define LargeurFenetre 800  // Augmenté pour inclure l'espace du score
 #define HauteurFenetre 600
-#define LARGEUR_SCORE 350
+#define LARGEUR_SCORE 400
 
-void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche, bool *win)
-{
-	if (*difficulte != 0)
+void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche, bool *win, bool *initialise)
+{	
+	float lFenetre = largeurFenetre();
+	float hFenetre = hauteurFenetre();
+		
+	if (*difficulte != 0 && !*win && !*minetouche)
 	{
 		int largeur = largeurFenetre() - LARGEUR_SCORE; // Réduire la largeur pour inclure l'espace du score
 		int hauteur = hauteurFenetre();
@@ -66,12 +69,84 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 		{
 			*dehors = true;
 		}
+		float rectangles[3][4] = {
+		{lFenetre * 5 / 8, hFenetre * 7 / 12, lFenetre * 7 / 8, hFenetre * 5.5 / 12},
+		{lFenetre * 5 / 8, hFenetre * 4.5 / 12, lFenetre * 7 / 8, hFenetre * 3 / 12},
+		{lFenetre * 5 / 8, hFenetre * 2 / 12, lFenetre * 7 / 8, hFenetre * 0.5 / 12}};
+
+	    for (int i = 0; i < 3; i++) {
+		if (x >= rectangles[i][0] && x <= rectangles[i][2] && y >= rectangles[i][3] && y <= rectangles[i][1]){
+		    switch (i) {
+		        case 0:
+		            // Recommencer
+		            	libererGrille(tableau, *lignes);
+		            	*initialise = false;
+    				*firstclick = false;
+    				*cptflag= *mines;
+    				printf("Vous avez recommencé\n");
+		            break;
+		        case 1:
+		            // niveau suivant
+		            
+		            switch(*difficulte){
+		            	case 1:
+		            		*difficulte = 2;
+					*lignes = 0;
+					*colonnes = 0;
+					*mines = 0;
+					*cptflag = 0;
+					libererGrille(tableau, *lignes);
+					choixDifficulte(*difficulte, lignes, colonnes, mines, cptflag);
+					*initialise = false;
+					*firstclick = false;
+					redimensionneFenetre(857, HauteurFenetre);
+		            		break;
+		            	case 2:
+		            		*difficulte = 3;
+					*lignes = 0;
+					*colonnes = 0;
+					*mines = 0;
+					*cptflag = 0;
+					libererGrille(tableau, *lignes);
+					choixDifficulte(*difficulte, lignes, colonnes, mines, cptflag);
+					*initialise = false;
+					*firstclick = false;
+					redimensionneFenetre(882, HauteurFenetre);
+		            		break;
+		            	case 3:
+		            		*difficulte = 1;
+					*lignes = 0;
+					*colonnes = 0;
+					*mines = 0;
+					*cptflag = 0;
+					libererGrille(tableau, *lignes);
+					choixDifficulte(*difficulte, lignes, colonnes, mines, cptflag);
+					*initialise = false;
+					*firstclick = false;
+					redimensionneFenetre(LargeurFenetre, HauteurFenetre);
+		            		break;
+		            }
+		            	
+		            break;
+		        case 2:
+		            // écran titre
+		            *difficulte = 0;
+			    *lignes = 0;
+			    *colonnes = 0;
+			    *mines = 0;
+			    *cptflag = 0;
+			    tableau = NULL;
+			    *initialise = false;
+			    *firstclick = false;
+		            break;
+		    }
+		}
+	    }
+	    
 	}
 
 	if (*difficulte == 0)
 	{
-		float lFenetre = largeurFenetre();
-		float hFenetre = hauteurFenetre();
 
 		// Coordonnées des rectangles
 		float facileX1 = lFenetre * 3 / 8, facileY1 = hFenetre * 9.5 / 12, facileX2 = lFenetre * 5 / 8, facileY2 = hFenetre * 7.5 / 12;
@@ -88,15 +163,19 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 		else if (x >= moyenX1 && x <= moyenX2 && y >= moyenY2 && y <= moyenY1)
 		{
 			*difficulte = 2;
+			redimensionneFenetre(857, HauteurFenetre);
 		}
 		// Vérifier si le clic est sur le bouton "DIFFICILE"
 		else if (x >= difficileX1 && x <= difficileX2 && y >= difficileY2 && y <= difficileY1)
 		{
 			*difficulte = 3;
+			redimensionneFenetre(882, HauteurFenetre);
 		}
 		choixDifficulte(*difficulte, lignes, colonnes, mines, cptflag);
 	}
+	
 }
+
 
 void gererClicDroit(int x, int y, int lignes, int colonnes, int difficulte, Case** tableau, int *cptflag)
 {
@@ -124,5 +203,3 @@ void gererClicDroit(int x, int y, int lignes, int colonnes, int difficulte, Case
 	    }
     }
 }
-
-
