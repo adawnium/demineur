@@ -186,14 +186,23 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
         
         
         char chrono[20];
-        time_t currentTime;
-        time(&currentTime);
+        static double finalTime = 0;
+
         if(firstclick && !win && !minetouche)
+        { 
+            time_t currentTime;
+            time(&currentTime);
+            // printf("Current time: %ld\n", currentTime);
+            // printf("Start time: %ld\n", startTime);
+            elapsedTime = difftime(currentTime, startTime);
+            finalTime = elapsedTime; // Mettre à jour finalTime pendant le jeu
+        }
+        else if((win || minetouche) && finalTime == 0)
         {
-		elapsedTime = difftime(currentTime, startTime);
-		
-	}
-	sprintf(chrono, "Chronometre: %.0f s", elapsedTime);
+            finalTime = elapsedTime; // Bloquer finalTime à la fin du jeu
+        }
+
+        sprintf(chrono, "Chronometre: %.0f s", finalTime);
         afficheChaine(chrono, taillePolice, largeur*5/8, hauteur*9.5/12);
         
         
