@@ -29,17 +29,18 @@ void gestionEvenement(EvenementGfx evenement) {
     bool dehors = false;
     static bool minetouche = false;
     static bool win = false;
+    static time_t startTime = 0;
+    static double elapsedTime =0;
+    static bool relancement = false;
+    
 
     switch (evenement) {
-    
         case Initialisation:
             demandeTemporisation(20);
             break;
-            
         case Temporisation:
             rafraichisFenetre();
             break;
-            
         case Affichage:
             if (fondBlanc) {
                 effaceFenetre(255, 255, 255);
@@ -49,18 +50,15 @@ void gestionEvenement(EvenementGfx evenement) {
             if (difficulte == 0) {
                 pageAccueil(fondBlanc);
             } else {
-                dessineGrille(lignes, colonnes, fondBlanc, win, minetouche, tableau, cptflag);
+                dessineGrille(lignes, colonnes, fondBlanc, win, minetouche, tableau, cptflag, startTime, elapsedTime, firstclick);
             }
             break;
-            
         case Clavier:
             switch (caractereClavier()) {
-            
                 case 'Q':
                 case 'q':
                     termineBoucleEvenements();
                     break;
-                    
                 case 'F':
                 case 'f':
                     pleinEcran = !pleinEcran;
@@ -70,30 +68,42 @@ void gestionEvenement(EvenementGfx evenement) {
                         redimensionneFenetre(LargeurFenetre, HauteurFenetre);
                     }
                     break;
-                    
                 case 'R':
                 case 'r':
                     demandeTemporisation(20);
                     break;
-                    
                 case 'B':
                 case 'b':
                     fondBlanc = !fondBlanc;
                     break;
             }
             break;
-            
         case ClavierSpecial:
             break;
-            
         case BoutonSouris:
             switch (etatBoutonSouris()) {
-            
                 case GaucheAppuye:
                 	int x = abscisseSouris();
                         int y = ordonneeSouris();
-                    if (!minetouche && !win) {
-                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win, &initialise);
+                       if(relancement){
+                       	relancement=!relancement;
+                       }
+                    if ((win || minetouche) && x >= largeurFenetre()*1.5/8 && x <= largeurFenetre()*3.5/8 && y >= hauteurFenetre()*4/12 && y <= hauteurFenetre()*6/12) {
+                        // Rejouer
+                        firstclick = false;
+                        minetouche = false;
+                        win = false;
+                        libererGrille(tableau, lignes);
+                        tableau = initTableau(lignes, colonnes);
+                        cptflag=mines;
+                        afficheGrille(tableau, lignes, colonnes, cptflag);
+                        relancement = true;
+                    } else if ((win || minetouche) && x >= largeurFenetre()*4.5/8 && x <= largeurFenetre()*6.5/8 && y >= hauteurFenetre()*4/12 && y <= hauteurFenetre()*6/12) {
+                        // Quitter
+                        termineBoucleEvenements();
+                    }
+                    if (!minetouche && !win && !relancement) {
+                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win, &initialise, &startTime);
                         if (difficulte != 0 && !initialise) {
                             tableau = initTableau(lignes, colonnes);
                             initialise = !initialise;
@@ -110,24 +120,9 @@ void gestionEvenement(EvenementGfx evenement) {
                             afficheGrilleComplete(tableau, lignes, colonnes);   
                         }
                     }
-                    if ((win || minetouche) && x >= largeurFenetre()*1.5/8 && x <= largeurFenetre()*3.5/8 && y >= hauteurFenetre()*4/12 && y <= hauteurFenetre()*6/12) {
-                        // Rejouer
-                        firstclick = false;
-                        minetouche = false;
-                        win = false;
-                        libererGrille(tableau, lignes);
-                        tableau = initTableau(lignes, colonnes);
-                        afficheGrille(tableau, lignes, colonnes, cptflag);
-                    } else if ((win || minetouche) && x >= largeurFenetre()*4.5/8 && x <= largeurFenetre()*6.5/8 && y >= hauteurFenetre()*4/12 && y <= hauteurFenetre()*6/12) {
-                        // Quitter
-                        termineBoucleEvenements();
-                    }
-                    
                     break;
-                    
                 case GaucheRelache:
                     break;
-                    
                 case DroiteAppuye:
                     if (!minetouche && firstclick) {
                         int x = abscisseSouris();
@@ -136,99 +131,91 @@ void gestionEvenement(EvenementGfx evenement) {
                         afficheGrille(tableau, lignes, colonnes, cptflag);
                     }
                     break;
-                    
                 case DroiteRelache:
                     break;
-                    
                 case MilieuAppuye:
                 case MilieuRelache:
                     break;
-                    
                 case ScrollDown:
                     break;
-                    
                 case ScrollUp:
                     break;
-                    
                 case ScrollRight:
                     break;
-                    
                 case ScrollLeft:
                     break;
             }
             break;
-            
         case Souris:
             break;
-            
         case Inactivite:
             break;
-            
         case Redimensionnement:
             printf("Largeur : %d\t", largeurFenetre());
             printf("Hauteur : %d\n", hauteurFenetre());
             break;
     }
 }
+void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool minetouche, Case **tableau, int cptflag, time_t startTime, double elapsedTime, bool firstclick) {
+	int largeur = largeurFenetre();
+	int largeurgrille = largeurFenetre() - LARGEUR_SCORE;
+	int hauteur = hauteurFenetre();
+	int largeurCase = largeurgrille / colonnes;
+	int hauteurCase = hauteur / lignes;
+	int tailleCase = largeurCase < hauteurCase ? largeurCase : hauteurCase;
+	if(fondBlanc)
+	{
+	       couleurCourante(0, 0, 0);
+	}
+	else{
+	       couleurCourante(255, 255, 255);
+	}
 
-void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool minetouche, Case **tableau, int cptflag) {
-    int largeur = largeurFenetre();
-    int largeurgrille = largeurFenetre() - LARGEUR_SCORE;
-    int hauteur = hauteurFenetre();
-    int largeurCase = largeurgrille / colonnes;
-    int hauteurCase = hauteur / lignes;
-    int tailleCase = largeurCase < hauteurCase ? largeurCase : hauteurCase;
-    
-    float lFenetre = largeurFenetre();
-	
-    if(fondBlanc)
-        {
-      		couleurCourante(0, 0, 0);
-      	}
-      	else{
-      		couleurCourante(255, 255, 255);
-      	}
-
-    // Dessiner les cases de la grille
-    for (int i = 0; i < lignes; i++) {
-        for (int j = 0; j < colonnes; j++) {
-            int x = j * tailleCase + 1;
-            int y = i * tailleCase + 1;
-            rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
-        }
-    }
+	    // Dessiner les cases de la grille
+	    for (int i = 0; i < lignes; i++) {
+		for (int j = 0; j < colonnes; j++) {
+		    int x = j * tailleCase + 1;
+		    int y = i * tailleCase + 1;
+		    rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
+		}
+	    }
     	epaisseurDeTrait(1);
-    	int taillePolice = 25;
-    	
         char titre[] = "DEMINEUR";
+        int taillePolice = 25;
         afficheChaine(titre, taillePolice, largeur*5/8, hauteur*11/12);
         
-        char chrono[] = "Chronometre";
+        
+        char chrono[20];
+        time_t currentTime;
+        time(&currentTime);
+        if(firstclick && !win && !minetouche)
+        {
+		elapsedTime = difftime(currentTime, startTime);
+		
+	}
+	sprintf(chrono, "Chronometre: %.0f s", elapsedTime);
         afficheChaine(chrono, taillePolice, largeur*5/8, hauteur*9.5/12);
         
+        
         char flag[50];
-        sprintf(flag, "Mines restantes : %d", cptflag);
+        sprintf(flag, "Mines restantes: %d", cptflag);
         afficheChaine(flag, taillePolice, largeur*5/8, hauteur*8/12);
         
+        couleurCourante( 74, 35, 90 );
         rectangle(largeur*5/8, hauteur*7/12, largeur*7/8, hauteur*5.5/12);
+        couleurCourante(125, 60, 152);
         rectangle(largeur*5/8, hauteur*4.5/12, largeur*7/8, hauteur*3/12);
+        couleurCourante( 187, 143, 206);
         rectangle(largeur*5/8, hauteur*2/12, largeur*7/8, hauteur*0.5/12);
         
-        if(fondBlanc)
-        {
-      		couleurCourante(255, 255, 255);
-      	}
-      	else{
-      		couleurCourante(0, 0, 0);
-      	}
-        
-        taillePolice = lFenetre/35;
+        couleurCourante(255, 255, 255);
+        taillePolice = largeur/35;
         char recommencer[] = "Recommencer";
         afficheChaine(recommencer, taillePolice, largeur*0.649, hauteur*0.51);
-        taillePolice = lFenetre/40;
-        char EcranTitre[] = "Ecran d'acueil";
+        taillePolice = largeur/40;
+        char EcranTitre[] = "Ecran d'accueil";
         afficheChaine(EcranTitre, taillePolice, largeur*0.665, hauteur*0.095);
-	taillePolice = lFenetre/47;
+	taillePolice = largeur/47;
         char switchNiveau[] = "Changer de niveau";
         afficheChaine(switchNiveau, taillePolice, largeur*0.648, hauteur*0.305);
         
@@ -268,7 +255,6 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
 		    ligne(rectX2 + 1, rectY1 + 1, rectX2 + 1, rectY2 - 1);
 
 		    epaisseurDeTrait(1);// Peut-être rajouter des lignes pour que ça se voit plus
-		    
         	if(fondBlanc)
 		{
 	      		couleurCourante(0, 0, 0);
@@ -310,7 +296,7 @@ void pageAccueil(bool fondBlanc){
 	epaisseurDeTrait(5);
 	
 	couleurCourante(46, 204, 113);
-        rectangle(lFenetre*300/LargeurFenetre, hFenetre*9.5/12, lFenetre*5/8, hFenetre*7.5/12);
+        rectangle(lFenetre*3/8, hFenetre*9.5/12, lFenetre*5/8, hFenetre*7.5/12);
         
         couleurCourante(243, 156, 18);
         rectangle(lFenetre*3/8, hFenetre*6.5/12, lFenetre*5/8, hFenetre*4.5/12);
@@ -333,7 +319,8 @@ void pageAccueil(bool fondBlanc){
         epaisseurDeTrait(2);
         ligne(lFenetre*0.333, hFenetre*0.865, lFenetre*0.67, hFenetre*0.867);
         
-         epaisseurDeTrait(1);       
+         epaisseurDeTrait(1);
+        
 	char crédit[] = "Antoine Ferrari  Amelie Phan  Emma Sadak  Marie Richeter";
         taillePolice = lFenetre/40;
         afficheChaine(crédit, taillePolice, lFenetre*0.07, hFenetre*0.05);
@@ -350,5 +337,3 @@ void pageAccueil(bool fondBlanc){
         taillePolice = lFenetre/30;
         afficheChaine(difficile, taillePolice, lFenetre*0.425, hFenetre*0.19);
 }
-
-
