@@ -193,7 +193,7 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
 
             if (tableau[i][j].revealed) {
                 // Couleur pour les cases révélées
-                couleurCourante(255, 255, 255); // Blanc
+                couleurCourante(247, 238, 255); // Violet très clair
                 rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
 
                 // Si la case contient une mine
@@ -221,35 +221,36 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
                     }
                 }
             } else {
-                couleurCourante(192, 192, 192); // Gris clair
+                couleurCourante(213, 200, 225); // Violet 
                 rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
 
                 // Si la case a un drapeau
                 if (tableau[i][j].flagged) {
-                    couleurCourante(255, 0, 0); // Rouge pour le drapeau
+                    couleurCourante(155, 103, 203); // Violet pour le drapeau
                     rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
                 }
             }
         }
     }
     
-	if(fondBlanc)
-	{
-	       couleurCourante(0, 0, 0);
+	if(fondBlanc) {
+        couleurCourante(0, 0, 0);
 	}
-	else{
-	       couleurCourante(255, 255, 255);
+	else {
+        couleurCourante(255, 255, 255);
 	}
 	
 	//float lFenetre = largeurFenetre();
-	int taillePolice = largeur/35;
+	int taillePolice = largeur/25;
 	
-    	epaisseurDeTrait(1);
+    	epaisseurDeTrait(3);
         char titre[] = "DEMINEUR";
-        afficheChaine(titre, taillePolice, largeur*5/8, hauteur*11/12);
+        couleurCourante(87, 9, 135);
+        afficheChaine(titre, taillePolice, largeur*0.645, hauteur*0.90);
         
+        epaisseurDeTrait(2);
         if(poweruse){
-        char power[]="pouvoir active";
+        char power[]="Pouvoir Active";
 	taillePolice = largeur/70;
 	afficheChaine(power, taillePolice, largeur*0.89, hauteur*0.1/12);
 	}
@@ -276,14 +277,21 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
         {
         	finalTime = 0; 
         }
-       	
+
+        epaisseurDeTrait(1);
+        if(fondBlanc) {
+            couleurCourante(0, 0, 0);
+        }
+        else {
+            couleurCourante(255, 255, 255);
+        }
         sprintf(chrono, "Chronometre: %.0f s", finalTime);
-        afficheChaine(chrono, taillePolice, largeur*5/8, hauteur*9.5/12);
+        afficheChaine(chrono, taillePolice, largeur*0.618, hauteur*9.4/12);
         
-        
+        epaisseurDeTrait(1);
         char flag[50];
-        sprintf(flag, "Mines restantes: %d", cptflag);
-        afficheChaine(flag, taillePolice, largeur*5/8, hauteur*8/12);
+        sprintf(flag, "Mines restantes: %2d", cptflag);
+        afficheChaine(flag, taillePolice, largeur*0.612, hauteur*8.1/12);
         
         couleurCourante( 74, 35, 90 );
         rectangle(largeur*5/8, hauteur*7/12, largeur*7/8, hauteur*5.5/12);
@@ -292,20 +300,21 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
         couleurCourante( 187, 143, 206);
         rectangle(largeur*5/8, hauteur*2/12, largeur*7/8, hauteur*0.5/12);
         
+        
         couleurCourante(255, 255, 255);
         taillePolice = largeur/35;
         char recommencer[] = "Recommencer";
         afficheChaine(recommencer, taillePolice, largeur*0.649, hauteur*0.51);
         taillePolice = largeur/40;
         char EcranTitre[] = "Ecran d'accueil";
-        afficheChaine(EcranTitre, taillePolice, largeur*0.665, hauteur*0.095);
-	taillePolice = largeur/47;
+        afficheChaine(EcranTitre, taillePolice, largeur*0.655, hauteur*0.095);
+	    taillePolice = largeur/47;
         char switchNiveau[] = "Changer de niveau";
-        afficheChaine(switchNiveau, taillePolice, largeur*0.648, hauteur*0.305);
+        afficheChaine(switchNiveau, taillePolice, largeur*0.644, hauteur*0.305);
         
-        if(win || minetouche){
+        if(win || minetouche) {
         	if(fondBlanc)
-		{
+		    {
 	      		couleurCourante(255, 255, 255);
 	      	}
 	      	else{
@@ -320,7 +329,7 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
 
 		    // Surligner les bords du rectangle
 		    epaisseurDeTrait(3);
-		    couleurCourante(255, 0, 0); // Rouge pour les lignes surlignées
+            couleurCourante(158, 53, 255); // Rouge pour les lignes surlignées
 
 		    // Ligne supérieure
 		    ligne(rectX1 - 2, rectY1 + 2, rectX2 + 2, rectY1 + 2);
@@ -339,29 +348,27 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
 		    ligne(rectX2 + 1, rectY1 + 1, rectX2 + 1, rectY2 - 1);
 
 		    epaisseurDeTrait(1);// Peut-être rajouter des lignes pour que ça se voit plus
-        	if(fondBlanc)
-		{
+        	if(fondBlanc) {
 	      		couleurCourante(0, 0, 0);
 	      	}
-	      	else{
+	      	else {
 	      		couleurCourante(255, 255, 255);
 	      	}
         	rectangle(largeur*1.5/8, hauteur*6/12, largeur*3.5/8, hauteur*4/12);
         	rectangle(largeur*4.5/8, hauteur*6/12, largeur*6.5/8, hauteur*4/12);
         	taillePolice = largeur/23;
-        	if(win){
-        		char gagne[]="TU AS GAGNE";
+        	if(win) {
+        		char gagne[] = "TU AS GAGNE";
         		afficheChaine(gagne, taillePolice, largeur*0.33, hauteur*7.5/12);
         	}
-        	if(minetouche){
+        	if(minetouche) {
         		char perdu[]="TU AS PERDU";
         		afficheChaine(perdu, taillePolice, largeur*0.33, hauteur*7.5/12);
         	}
-        	if(fondBlanc)
-		{
+        	if(fondBlanc) {
 	      		couleurCourante(255, 255, 255);
 	      	}
-	      	else{
+	      	else {
 	      		couleurCourante(0, 0, 0);
 	      	}
         	taillePolice = largeur/30;
@@ -388,11 +395,10 @@ void pageAccueil(bool fondBlanc){
         couleurCourante(192, 57, 43);
         rectangle(lFenetre*3/8, hFenetre*3.5/12, lFenetre*5/8, hFenetre*1.5/12);
         
-        if(fondBlanc)
-        {
-      		couleurCourante(0, 0, 0);
+        if(fondBlanc) {
+            couleurCourante(0, 0, 0);
       	}
-      	else{
+      	else {
       		couleurCourante(255, 255, 255);
       	}
         epaisseurDeTrait(3);
@@ -403,7 +409,7 @@ void pageAccueil(bool fondBlanc){
         epaisseurDeTrait(2);
         ligne(lFenetre*0.333, hFenetre*0.865, lFenetre*0.67, hFenetre*0.867);
         
-         epaisseurDeTrait(1);
+        epaisseurDeTrait(1);
         
 	char crédit[] = "Antoine Ferrari  Amelie Phan  Emma Sadak  Marie Richeter";
         taillePolice = lFenetre/40;
