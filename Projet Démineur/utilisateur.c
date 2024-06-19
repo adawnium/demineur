@@ -11,10 +11,10 @@
 #include "utilisateur.h"
 
 #define LargeurFenetre 800  // Augmenté pour inclure l'espace du score
-#define HauteurFenetre 600
+#define HauteurFenetre 601
 #define LARGEUR_SCORE 400
 
-void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche, bool *win, bool *initialise, time_t *startTime)
+void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche, bool *win, bool *initialise, time_t *startTime, bool *powerstock, bool *poweruse)
 {	
 	float lFenetre = largeurFenetre();
 	float hFenetre = hauteurFenetre();
@@ -51,7 +51,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 				*firstclick = true;
 			} else
 			{
-				if (!tableau[ligneCliquee][colonneCliquee].hasMine)
+				if (!tableau[ligneCliquee][colonneCliquee].hasMine && !tableau[ligneCliquee][colonneCliquee].flagged)
 				{
 					bool caseselected = true;
 					reveleCase(tableau, ligneCliquee, colonneCliquee, *lignes, *colonnes, caseselected);
@@ -59,9 +59,12 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 						*win = true;
 					}
 				}
-				else
+				else if(!tableau[ligneCliquee][colonneCliquee].revealed && !tableau[ligneCliquee][colonneCliquee].flagged)
 				{
 					*minetouche = true;
+					tableau[ligneCliquee][colonneCliquee].etat= 'M';
+					tableau[ligneCliquee][colonneCliquee].revealed = true;
+					
 				}
 			}
 		}
@@ -84,6 +87,8 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 		            	*initialise = false;
     				*firstclick = false;
     				*cptflag= *mines;
+    				*powerstock = true;
+    				*poweruse = false;
     				printf("Vous avez recommencé\n");
 		            break;
 		        case 1:
@@ -100,6 +105,8 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 					choixDifficulte(*difficulte, lignes, colonnes, mines, cptflag);
 					*initialise = false;
 					*firstclick = false;
+					*powerstock = true;
+    					*poweruse = false;
 					redimensionneFenetre(857, HauteurFenetre);
 		            		break;
 		            	case 2:
@@ -112,6 +119,8 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 					choixDifficulte(*difficulte, lignes, colonnes, mines, cptflag);
 					*initialise = false;
 					*firstclick = false;
+					*powerstock = true;
+    					*poweruse = false;
 					redimensionneFenetre(882, HauteurFenetre);
 		            		break;
 		            	case 3:
@@ -124,6 +133,8 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 					choixDifficulte(*difficulte, lignes, colonnes, mines, cptflag);
 					*initialise = false;
 					*firstclick = false;
+					*powerstock = true;
+    					*poweruse = false;
 					redimensionneFenetre(LargeurFenetre, HauteurFenetre);
 		            		break;
 		            }
@@ -139,6 +150,9 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 			    tableau = NULL;
 			    *initialise = false;
 			    *firstclick = false;
+			    *powerstock = true;
+    				*poweruse = false;
+    				libererGrille(tableau, *lignes);
 		            break;
 		    }
 		}

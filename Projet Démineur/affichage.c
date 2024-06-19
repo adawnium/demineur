@@ -12,7 +12,7 @@
 
 // Largeur et hauteur par defaut d'une image correspondant a nos criteres
 #define LargeurFenetre 800  // Augmenté pour inclure l'espace du score
-#define HauteurFenetre 600
+#define HauteurFenetre 601
 #define LARGEUR_SCORE 400
 
 void gestionEvenement(EvenementGfx evenement) {
@@ -32,8 +32,9 @@ void gestionEvenement(EvenementGfx evenement) {
     static time_t startTime = 0;
     static double elapsedTime =0;
     static bool relancement = false;
+    static bool powerstock = true;
+    static bool poweruse = false;
     
-
     switch (evenement) {
         case Initialisation:
             demandeTemporisation(20);
@@ -76,6 +77,14 @@ void gestionEvenement(EvenementGfx evenement) {
                 case 'b':
                     fondBlanc = !fondBlanc;
                     break;
+                    
+                case 'E':
+                case 'e':
+                    if(powerstock){
+                    	poweruse=true;
+                    	powerstock=false;
+                    }
+                    break;
             }
             break;
         case ClavierSpecial:
@@ -98,12 +107,20 @@ void gestionEvenement(EvenementGfx evenement) {
                         cptflag=mines;
                         afficheGrille(tableau, lignes, colonnes, cptflag);
                         relancement = true;
+                        powerstock = true;
+                        poweruse = false;
                     } else if ((win || minetouche) && x >= largeurFenetre()*4.5/8 && x <= largeurFenetre()*6.5/8 && y >= hauteurFenetre()*4/12 && y <= hauteurFenetre()*6/12) {
                         // Quitter
+                        libererGrille(tableau, lignes);
                         termineBoucleEvenements();
                     }
                     if (!minetouche && !win && !relancement) {
-                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win, &initialise, &startTime);
+                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win, &initialise, &startTime, &powerstock, &poweruse);
+                        if(poweruse)
+                        {
+                        	minetouche=false;
+                        	poweruse=false;
+                        }
                         if (difficulte != 0 && !initialise) {
                             tableau = initTableau(lignes, colonnes);
                             initialise = !initialise;
@@ -163,6 +180,55 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
 	int largeurCase = largeurgrille / colonnes;
 	int hauteurCase = hauteur / lignes;
 	int tailleCase = largeurCase < hauteurCase ? largeurCase : hauteurCase;
+	
+	    for (int i = 0; i < lignes; i++) {
+        for (int j = 0; j < colonnes; j++) {
+            // Inversion des coordonnées pour le dessin des cases
+            int x = j * tailleCase + 1;
+            int y = (lignes - 1 - i) * tailleCase + 1;
+
+            if (tableau[i][j].revealed) {
+                // Couleur pour les cases révélées
+                couleurCourante(255, 255, 255); // Blanc
+                rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
+
+                // Si la case contient une mine
+                if (tableau[i][j].hasMine) {
+                    couleurCourante(0, 0, 0); // Noir pour la mine
+                    int taillePolice = tailleCase / 2;
+                    afficheChaine("M", taillePolice, x + tailleCase / 4, y + tailleCase / 4);
+                } else {
+                    // Afficher le nombre de mines adjacentes
+                    int minesAdjacentes = tableau[i][j].nbMinesAdj;
+                    if (minesAdjacentes > 0) {
+                        switch (minesAdjacentes) {
+                            case 1: couleurCourante(0, 0, 255); break;   // Bleu
+                            case 2: couleurCourante(0, 255, 0); break;   // Vert
+                            case 3: couleurCourante(255, 0, 0); break;   // Rouge
+                            case 4: couleurCourante(0, 0, 128); break;   // Bleu foncé
+                            case 5: couleurCourante(128, 0, 0); break;   // Rouge foncé
+                            case 6: couleurCourante(0, 128, 128); break; // Cyan foncé
+                            default: couleurCourante(0, 0, 0); break;    // Noir pour 7 et plus
+                        }
+                        char nombre[2];
+                        sprintf(nombre, "%d", minesAdjacentes);
+                        int taillePolice = tailleCase / 2;
+                        afficheChaine(nombre, taillePolice, x + tailleCase / 4, y + tailleCase / 4);
+                    }
+                }
+            } else {
+                couleurCourante(192, 192, 192); // Gris clair
+                rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
+
+                // Si la case a un drapeau
+                if (tableau[i][j].flagged) {
+                    couleurCourante(255, 0, 0); // Rouge pour le drapeau
+                    rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
+                }
+            }
+        }
+    }
+    
 	if(fondBlanc)
 	{
 	       couleurCourante(0, 0, 0);
@@ -171,14 +237,6 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
 	       couleurCourante(255, 255, 255);
 	}
 
-	    // Dessiner les cases de la grille
-	    for (int i = 0; i < lignes; i++) {
-		for (int j = 0; j < colonnes; j++) {
-		    int x = j * tailleCase + 1;
-		    int y = i * tailleCase + 1;
-		    rectangle(x, y, x + tailleCase - 1, y + tailleCase - 1);
-		}
-	    }
     	epaisseurDeTrait(1);
         char titre[] = "DEMINEUR";
         int taillePolice = 25;
@@ -209,6 +267,10 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
         char flag[50];
         sprintf(flag, "Mines restantes: %d", cptflag);
         afficheChaine(flag, taillePolice, largeur*5/8, hauteur*8/12);
+        
+        char power[]="pouvoir active";
+        	taillePolice=10;
+        	afficheChaine(power, taillePolice, largeur*7/8, hauteur*0.1/12);
         
         couleurCourante( 74, 35, 90 );
         rectangle(largeur*5/8, hauteur*7/12, largeur*7/8, hauteur*5.5/12);
@@ -346,3 +408,4 @@ void pageAccueil(bool fondBlanc){
         taillePolice = lFenetre/30;
         afficheChaine(difficile, taillePolice, lFenetre*0.425, hFenetre*0.19);
 }
+

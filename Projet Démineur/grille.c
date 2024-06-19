@@ -156,7 +156,12 @@ void reveleCase(Case** tableau, int x, int y, int lignes, int colonnes, bool cas
     }
     
     tableau[x][y].revealed = true;
+    if(!tableau[x][y].hasMine){
     tableau[x][y].etat = tableau[x][y].nbMinesAdj + '0';
+    }
+    else{
+    	tableau[x][y].etat = 'M';
+    }
     caseselected = false;
     if (tableau[x][y].nbMinesAdj == 0) {
         for (int i = -1; i <= 1; i++) {
