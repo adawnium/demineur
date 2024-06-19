@@ -13,7 +13,7 @@
 int main(int argc, char **argv) {
 	initialiseGfx(argc, argv);
 	
-	prepareFenetreGraphique("beteuh", LargeurFenetre, HauteurFenetre);
+	prepareFenetreGraphique("Demineur", LargeurFenetre, HauteurFenetre);
 
 	
 	/* Lance la boucle qui aiguille les evenements sur la fonction gestionEvenement ci-apres,

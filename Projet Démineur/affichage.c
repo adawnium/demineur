@@ -34,6 +34,10 @@ void gestionEvenement(EvenementGfx evenement) {
     static bool relancement = false;
     static bool powerstock = true;
     static bool poweruse = false;
+    /*static DonneesImageRGB *imageChiffres[7] = {NULL};
+static DonneesImageRGB *imageNonRevelee = NULL;
+static DonneesImageRGB *imageDrapeau = NULL;
+static DonneesImageRGB *imageMine = NULL;*/
     
     switch (evenement) {
         case Initialisation:
@@ -51,7 +55,7 @@ void gestionEvenement(EvenementGfx evenement) {
             if (difficulte == 0) {
                 pageAccueil(fondBlanc);
             } else {
-                dessineGrille(lignes, colonnes, fondBlanc, win, minetouche, tableau, cptflag, startTime, elapsedTime, firstclick);
+                dessineGrille(lignes, colonnes, fondBlanc, win, minetouche, tableau, cptflag, startTime, elapsedTime, firstclick, poweruse, relancement);
             }
             break;
         case Clavier:
@@ -115,7 +119,7 @@ void gestionEvenement(EvenementGfx evenement) {
                         termineBoucleEvenements();
                     }
                     if (!minetouche && !win && !relancement) {
-                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win, &initialise, &startTime, &powerstock, &poweruse);
+                        gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win, &initialise, &startTime, &powerstock, &poweruse, &relancement);
                         if(poweruse)
                         {
                         	minetouche=false;
@@ -173,7 +177,7 @@ void gestionEvenement(EvenementGfx evenement) {
             break;
     }
 }
-void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool minetouche, Case **tableau, int cptflag, time_t startTime, double elapsedTime, bool firstclick) {
+void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool minetouche, Case **tableau, int cptflag, time_t startTime, double elapsedTime, bool firstclick, bool poweruse, bool relancement) {
 	int largeur = largeurFenetre();
 	int largeurgrille = largeurFenetre() - LARGEUR_SCORE;
 	int hauteur = hauteurFenetre();
@@ -236,17 +240,26 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
 	else{
 	       couleurCourante(255, 255, 255);
 	}
-
+	
+	//float lFenetre = largeurFenetre();
+	int taillePolice = largeur/35;
+	
     	epaisseurDeTrait(1);
         char titre[] = "DEMINEUR";
-        int taillePolice = 25;
         afficheChaine(titre, taillePolice, largeur*5/8, hauteur*11/12);
         
+        if(poweruse){
+        char power[]="pouvoir active";
+	taillePolice = largeur/70;
+	afficheChaine(power, taillePolice, largeur*0.89, hauteur*0.1/12);
+	}
+        
+        taillePolice = largeur/35;
         
         char chrono[20];
         static double finalTime = 0;
 
-        if(firstclick && !win && !minetouche)
+        if(firstclick && !win && !minetouche && !relancement)
         { 
             time_t currentTime;
             time(&currentTime);
@@ -255,11 +268,15 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
             elapsedTime = difftime(currentTime, startTime);
             finalTime = elapsedTime; // Mettre à jour finalTime pendant le jeu
         }
-        else if((win || minetouche) && finalTime == 0)
+        else if((win || minetouche) && finalTime == 0 && !relancement)
         {
             finalTime = elapsedTime; // Bloquer finalTime à la fin du jeu
         }
-
+        else if(relancement)
+        {
+        	finalTime = 0; 
+        }
+       	
         sprintf(chrono, "Chronometre: %.0f s", finalTime);
         afficheChaine(chrono, taillePolice, largeur*5/8, hauteur*9.5/12);
         
@@ -267,10 +284,6 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
         char flag[50];
         sprintf(flag, "Mines restantes: %d", cptflag);
         afficheChaine(flag, taillePolice, largeur*5/8, hauteur*8/12);
-        
-        char power[]="pouvoir active";
-        	taillePolice=10;
-        	afficheChaine(power, taillePolice, largeur*7/8, hauteur*0.1/12);
         
         couleurCourante( 74, 35, 90 );
         rectangle(largeur*5/8, hauteur*7/12, largeur*7/8, hauteur*5.5/12);
@@ -335,14 +348,14 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
 	      	}
         	rectangle(largeur*1.5/8, hauteur*6/12, largeur*3.5/8, hauteur*4/12);
         	rectangle(largeur*4.5/8, hauteur*6/12, largeur*6.5/8, hauteur*4/12);
-        	taillePolice=30;
+        	taillePolice = largeur/23;
         	if(win){
-        		char gagne[]="GG TU AS GAGNE";
-        		afficheChaine(gagne, taillePolice, largeur*2.5/8, hauteur*7.5/12);
+        		char gagne[]="TU AS GAGNE";
+        		afficheChaine(gagne, taillePolice, largeur*0.33, hauteur*7.5/12);
         	}
         	if(minetouche){
-        		char perdu[]="PERDU TU ES BETEUH";
-        		afficheChaine(perdu, taillePolice, largeur*2/8, hauteur*7.5/12);
+        		char perdu[]="TU AS PERDU";
+        		afficheChaine(perdu, taillePolice, largeur*0.33, hauteur*7.5/12);
         	}
         	if(fondBlanc)
 		{
@@ -351,11 +364,11 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
 	      	else{
 	      		couleurCourante(0, 0, 0);
 	      	}
-        	taillePolice=15;
+        	taillePolice = largeur/30;
         	char rejouer[]="Rejouer";
-        	afficheChaine(rejouer, taillePolice, largeur*2.25/8, hauteur*5/12);
+        	afficheChaine(rejouer, taillePolice, largeur*0.247, hauteur*0.4);
         	char quitter[]="Quitter";
-        	afficheChaine(quitter, taillePolice, largeur*5.25/8, hauteur*5/12);
+        	afficheChaine(quitter, taillePolice, largeur*0.635, hauteur*0.4);
         	
         }
     
@@ -409,3 +422,42 @@ void pageAccueil(bool fondBlanc){
         afficheChaine(difficile, taillePolice, lFenetre*0.425, hFenetre*0.19);
 }
 
+/*void chargeImages() {
+    if (imageNonRevelee == NULL) {
+        imageNonRevelee = lisBMPRGB("Case.bmp");
+    }
+    if (imageDrapeau == NULL) {
+        imageDrapeau = lisBMPRGB("Drapeau.bmp");
+    }
+    if (imageMine == NULL) {
+        imageMine = lisBMPRGB("Mine.bmp");
+    }
+    for (int i = 0; i < 7; i++) {
+        if (imageChiffres[i] == NULL) {
+            char filename[20];
+            sprintf(filename, "%d.bmp", i + 1);
+            imageChiffres[i] = lisBMPRGB(filename);
+        }
+    }
+}
+
+void libereImages() {
+    if (imageNonRevelee != NULL) {
+        libereDonneesImageRGB(&imageNonRevelee);
+        imageNonRevelee = NULL;
+    }
+    if (imageDrapeau != NULL) {
+        libereDonneesImageRGB(&imageDrapeau);
+        imageDrapeau = NULL;
+    }
+    if (imageMine != NULL) {
+        libereDonneesImageRGB(&imageMine);
+        imageMine = NULL;
+    }
+    for (int i = 0; i < 7; i++) {
+        if (imageChiffres[i] != NULL) {
+            libereDonneesImageRGB(&imageChiffres[i]);
+            imageChiffres[i] = NULL;
+        }
+    }
+}*/

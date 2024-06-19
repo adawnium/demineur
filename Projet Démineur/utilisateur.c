@@ -14,7 +14,7 @@
 #define HauteurFenetre 601
 #define LARGEUR_SCORE 400
 
-void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche, bool *win, bool *initialise, time_t *startTime, bool *powerstock, bool *poweruse)
+void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, int *mines, int *cptflag, bool *dehors, bool *firstclick, Case **tableau, bool *minetouche, bool *win, bool *initialise, time_t *startTime, bool *powerstock, bool *poweruse, bool *relancement)
 {	
 	float lFenetre = largeurFenetre();
 	float hFenetre = hauteurFenetre();
@@ -64,6 +64,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 					*minetouche = true;
 					tableau[ligneCliquee][colonneCliquee].etat= 'M';
 					tableau[ligneCliquee][colonneCliquee].revealed = true;
+					*cptflag -= 1;
 					
 				}
 			}
@@ -89,6 +90,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
     				*cptflag= *mines;
     				*powerstock = true;
     				*poweruse = false;
+    				*relancement= true;
     				printf("Vous avez recommencé\n");
 		            break;
 		        case 1:
@@ -107,6 +109,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 					*firstclick = false;
 					*powerstock = true;
     					*poweruse = false;
+    					*relancement= true;
 					redimensionneFenetre(857, HauteurFenetre);
 		            		break;
 		            	case 2:
@@ -121,6 +124,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 					*firstclick = false;
 					*powerstock = true;
     					*poweruse = false;
+    					*relancement= true;
 					redimensionneFenetre(882, HauteurFenetre);
 		            		break;
 		            	case 3:
@@ -135,6 +139,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 					*firstclick = false;
 					*powerstock = true;
     					*poweruse = false;
+    					*relancement= true;
 					redimensionneFenetre(LargeurFenetre, HauteurFenetre);
 		            		break;
 		            }
@@ -152,6 +157,7 @@ void gererClicGauche(int x, int y, int *lignes, int *colonnes, int *difficulte, 
 			    *firstclick = false;
 			    *powerstock = true;
     				*poweruse = false;
+    				*relancement= true;
     				libererGrille(tableau, *lignes);
 		            break;
 		    }
