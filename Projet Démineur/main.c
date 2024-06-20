@@ -11,11 +11,10 @@
 #define HauteurFenetre 601
 
 int main(int argc, char **argv) {
-	initialiseGfx(argc, argv);
+	initialiseGfx(argc, argv); // initialise la librairie
 	
-	prepareFenetreGraphique("Demineur", LargeurFenetre, HauteurFenetre);
+	prepareFenetreGraphique("Demineur", LargeurFenetre, HauteurFenetre); // crée une fenetre pour afficher les différents éléments
 
-	
 	/* Lance la boucle qui aiguille les evenements sur la fonction gestionEvenement ci-apres,
 		qui elle-meme utilise fonctionAffichage ci-dessous */
 	lanceBoucleEvenements();
