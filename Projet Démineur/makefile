@@ -8,10 +8,10 @@ main.o: main.c GFXLIB/GfxLib.h
 grille.o: grille.c grille.h GFXLIB/GfxLib.h
 	gcc -Wall -c grille.c
 	
-affichage.o: affichage.c affichage.h GFXLIB/GfxLib.h GFXLIB/BmpLib.h GFXLIB/ESLib.h
+affichage.o: affichage.c affichage.h GFXLIB/GfxLib.h
 	gcc -Wall -c affichage.c
 	
-utilisateur.o: utilisateur.c utilisateur.h GFXLIB/GfxLib.h GFXLIB/BmpLib.h GFXLIB/ESLib.h
+utilisateur.o: utilisateur.c utilisateur.h GFXLIB/GfxLib.h
 	gcc -Wall -c utilisateur.c
 
 clean:

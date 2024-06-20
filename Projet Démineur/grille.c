@@ -10,29 +10,23 @@ void choixDifficulte(int difficulte, int *lignes, int *colonnes, int *mines, int
 {
     switch (difficulte)
     {
-    case 1:
+    case 1: // mode facile
         *lignes = 15;
         *colonnes = 10;
         *mines = 18;
         *cptflag = 18;
         break;
-    case 2:
+    case 2: //mode moyen
         *lignes = 20;
         *colonnes = 15;
         *mines = 45;
         *cptflag = 45;
         break;
-    case 3:
+    case 3: //mode difficile
         *lignes = 25;
         *colonnes = 20;
         *mines = 100;
         *cptflag = 100;
-        break;
-    case 4:
-        *lignes = 5;
-        *colonnes = 5;
-        *mines = 3;
-        *cptflag = 3;
         break;
     default:
         break;
@@ -40,25 +34,28 @@ void choixDifficulte(int difficulte, int *lignes, int *colonnes, int *mines, int
 }
 
 // Initialise le tableau 2D de cases
-Case** initTableau(int lignes, int colonnes) {
-	Case** tableau = (Case**) malloc(lignes * sizeof(Case*));
-	for (int i = 0; i < lignes; i++) {
-		tableau[i] = (Case*) malloc(colonnes * sizeof(Case));
-		for (int j = 0; j < colonnes; j++) {
-			tableau[i][j].etat = '.';
-			tableau[i][j].flagged = false;
-			tableau[i][j].hasMine = false;
-			tableau[i][j].revealed = false;
-			tableau[i][j].nbMinesAdj = 0;
-		}
-	}
-	return tableau;
+Case **initTableau(int lignes, int colonnes)
+{
+    Case **tableau = (Case **)malloc(lignes * sizeof(Case *)); //allocation de mémoire 
+    for (int i = 0; i < lignes; i++)
+    {
+        tableau[i] = (Case *)malloc(colonnes * sizeof(Case)); 
+        for (int j = 0; j < colonnes; j++) 
+        {
+            tableau[i][j].etat = '.';
+            tableau[i][j].flagged = false;
+            tableau[i][j].hasMine = false;
+            tableau[i][j].revealed = false; 
+            tableau[i][j].nbMinesAdj = 0;
+        }
+    }
+    return tableau;
 }
 
 // Affiche la grille en cours de jeu
 void afficheGrille(Case **tableau, int lignes, int colonnes, int cptflag)
 {
-    if (tableau == NULL)
+    if (tableau == NULL)                                // vérification de la validité du pointeur
     {
         printf("Pointeur nul (afficheGrille)\n");
         return;
@@ -70,7 +67,7 @@ void afficheGrille(Case **tableau, int lignes, int colonnes, int cptflag)
             if (!tableau[i][j].revealed)
             {
                 if (tableau[i][j].flagged)
-                {
+                {                                     // condition pour que l'affichage soit cohérent
                     printf("F ");
                 }
                 else
@@ -122,9 +119,9 @@ void libererGrille(Case **tableau, int lignes)
         printf("Pointeur nul (libererGrille)\n");
         return;
     }
-    for (int i = 0; i < lignes; i++)
+    for (int i = 0; i < lignes; i++)            
     {
-        free(tableau[i]);
+        free(tableau[i]);   //libération de la mémoire très important surtout si on veut faire durer le programme
     }
     free(tableau);
 }
@@ -167,7 +164,7 @@ void compteMines(Case **tableau, int x, int y, int lignes, int colonnes)
             {
                 int nx = x + i;
                 int ny = y + j;
-                if (nx >= 0 && nx < lignes && ny >= 0 && ny < colonnes && tableau[nx][ny].hasMine)
+                if (nx >= 0 && nx < lignes && ny >= 0 && ny < colonnes && tableau[nx][ny].hasMine)  // compte le nombre de mine autour d'une case
                 {
                     compteur++;
                 }
@@ -185,7 +182,7 @@ void reveleCase(Case **tableau, int x, int y, int lignes, int colonnes, bool cas
         printf("Pointeur nul (reveleCase)\n");
         return;
     }
-    if (x < 0 || x >= lignes || y < 0 || y >= colonnes || tableau[x][y].revealed)
+    if (x < 0 || x >= lignes || y < 0 || y >= colonnes || tableau[x][y].revealed)  // si la case en paramètre n'est pas bonne
     {
         if (caseselected)
         {
@@ -195,7 +192,7 @@ void reveleCase(Case **tableau, int x, int y, int lignes, int colonnes, bool cas
     }
     if (tableau[x][y].flagged)
     {
-        printf("Ouvre les knoeils y'a un drapeau la tsssss\n");
+        printf("impossible il y a un drapeau ici\n");
         return;
     }
 
@@ -215,7 +212,7 @@ void reveleCase(Case **tableau, int x, int y, int lignes, int colonnes, bool cas
         {
             for (int j = -1; j <= 1; j++)
             {
-                reveleCase(tableau, x + i, y + j, lignes, colonnes, caseselected);
+                reveleCase(tableau, x + i, y + j, lignes, colonnes, caseselected); // vérifie les cases autour pour voir si il y a des 0
             }
         }
     }
@@ -231,7 +228,7 @@ void placerDrapeau(Case **tableau, int x, int y, int *cptflag)
     }
     if (tableau[x][y].revealed || tableau[x][y].flagged)
     {
-        printf("Ouvre les knoeils y'a un drapeau la tsssss\n");
+        printf("On ne peut pas placer un drapeau ici\n");
         return;
     }
     tableau[x][y].flagged = true;
@@ -249,7 +246,7 @@ void enleverDrapeau(Case **tableau, int x, int y, int *cptflag)
     }
     if (tableau[x][y].revealed || !tableau[x][y].flagged)
     {
-        printf("Ouvre les knoeils y'a pas de drapeau la tsssss\n");
+        printf("Il n'y a pas de drapeau ici\n");
         return;
     }
     tableau[x][y].flagged = false;

@@ -1,202 +1,16 @@
 #include <stdlib.h> // Pour pouvoir utiliser exit()
 #include <stdio.h>  // Pour pouvoir utiliser printf()
-#include <math.h>   // Pour pouvoir utiliser sin() et cos()
 #include <stdbool.h>
 #include <time.h>
 #include "grille.h"
 #include "GFXLIB/GfxLib.h" // Seul cet include est necessaire pour faire du graphique
-#include "GFXLIB/BmpLib.h" // Cet include permet de manipuler des fichiers BMP
-#include "GFXLIB/ESLib.h"  // Pour utiliser valeurAleatoire()
 #include "affichage.h"
-#include "utilisateur.h"
 
 // Largeur et hauteur par defaut d'une image correspondant a nos criteres
 #define LargeurFenetre 800 // Augmenté pour inclure l'espace du score
 #define HauteurFenetre 601
 #define LARGEUR_SCORE 400
 
-void gestionEvenement(EvenementGfx evenement)
-{
-    static bool pleinEcran = false;
-    static bool fondBlanc = true;
-    static int difficulte = 0;
-    static int lignes = 0;
-    static int colonnes = 0;
-    static int mines = 0;
-    static int cptflag = 0;
-    static Case **tableau = NULL;
-    static bool initialise = false;
-    static bool firstclick = false;
-    bool dehors = false;
-    static bool minetouche = false;
-    static bool win = false;
-    static time_t startTime = 0;
-    static double elapsedTime = 0;
-    static bool relancement = false;
-    static bool powerstock = true;
-    static bool poweruse = false;
-
-    switch (evenement)
-    {
-    case Initialisation:
-        demandeTemporisation(20);
-        break;
-    case Temporisation:
-        rafraichisFenetre();
-        break;
-    case Affichage:
-        if (fondBlanc)
-        {
-            effaceFenetre(255, 255, 255);
-        }
-        else
-        {
-            effaceFenetre(0, 0, 0);
-        }
-        if (difficulte == 0)
-        {
-            pageAccueil(fondBlanc);
-        }
-        else
-        {
-            dessineGrille(lignes, colonnes, fondBlanc, win, minetouche, tableau, cptflag, startTime, elapsedTime, firstclick, poweruse, relancement);
-        }
-        break;
-    case Clavier:
-        switch (caractereClavier())
-        {
-        case 'Q':
-        case 'q':
-            termineBoucleEvenements();
-            break;
-        case 'F':
-        case 'f':
-            pleinEcran = !pleinEcran;
-            if (pleinEcran)
-            {
-                modePleinEcran();
-            }
-            else
-            {
-                redimensionneFenetre(LargeurFenetre, HauteurFenetre);
-            }
-            break;
-        case 'R':
-        case 'r':
-            demandeTemporisation(20);
-            break;
-        case 'B':
-        case 'b':
-            fondBlanc = !fondBlanc;
-            break;
-
-        case 'E':
-        case 'e':
-            if (powerstock)
-            {
-                poweruse = true;
-                powerstock = false;
-            }
-            break;
-        }
-        break;
-    case ClavierSpecial:
-        break;
-    case BoutonSouris:
-        switch (etatBoutonSouris())
-        {
-        case GaucheAppuye:
-            int x = abscisseSouris();
-            int y = ordonneeSouris();
-            if (relancement)
-            {
-                relancement = !relancement;
-            }
-            if ((win || minetouche) && x >= largeurFenetre() * 1.5 / 8 && x <= largeurFenetre() * 3.5 / 8 && y >= hauteurFenetre() * 4 / 12 && y <= hauteurFenetre() * 6 / 12)
-            {
-                // Rejouer
-                firstclick = false;
-                minetouche = false;
-                win = false;
-                libererGrille(tableau, lignes);
-                tableau = initTableau(lignes, colonnes);
-                cptflag = mines;
-                afficheGrille(tableau, lignes, colonnes, cptflag);
-                relancement = true;
-                powerstock = true;
-                poweruse = false;
-            }
-            else if ((win || minetouche) && x >= largeurFenetre() * 4.5 / 8 && x <= largeurFenetre() * 6.5 / 8 && y >= hauteurFenetre() * 4 / 12 && y <= hauteurFenetre() * 6 / 12)
-            {
-                // Quitter
-                libererGrille(tableau, lignes);
-                termineBoucleEvenements();
-            }
-            if (!minetouche && !win && !relancement)
-            {
-                gererClicGauche(x, y, &lignes, &colonnes, &difficulte, &mines, &cptflag, &dehors, &firstclick, tableau, &minetouche, &win, &initialise, &startTime, &powerstock, &poweruse, &relancement);
-                if (poweruse)
-                {
-                    minetouche = false;
-                    poweruse = false;
-                }
-                if (difficulte != 0 && !initialise)
-                {
-                    tableau = initTableau(lignes, colonnes);
-                    initialise = !initialise;
-                }
-                if (initialise && !dehors && !minetouche)
-                {
-                    afficheGrille(tableau, lignes, colonnes, cptflag);
-                }
-                if (minetouche)
-                {
-                    printf("PERDU TU ES BETEUH\n\n");
-                    afficheGrilleComplete(tableau, lignes, colonnes);
-                }
-                if (win)
-                {
-                    printf("GG TU AS GAGNE\n\n");
-                    afficheGrilleComplete(tableau, lignes, colonnes);
-                }
-            }
-            break;
-        case GaucheRelache:
-            break;
-        case DroiteAppuye:
-            if (!minetouche && firstclick)
-            {
-                int x = abscisseSouris();
-                int y = ordonneeSouris();
-                gererClicDroit(x, y, lignes, colonnes, difficulte, tableau, &cptflag);
-                afficheGrille(tableau, lignes, colonnes, cptflag);
-            }
-            break;
-        case DroiteRelache:
-            break;
-        case MilieuAppuye:
-        case MilieuRelache:
-            break;
-        case ScrollDown:
-            break;
-        case ScrollUp:
-            break;
-        case ScrollRight:
-            break;
-        case ScrollLeft:
-            break;
-        }
-        break;
-    case Souris:
-        break;
-    case Inactivite:
-        break;
-    case Redimensionnement:
-        printf("Largeur : %d\t", largeurFenetre());
-        printf("Hauteur : %d\n", hauteurFenetre());
-        break;
-    }
-}
 void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool minetouche, Case **tableau, int cptflag, time_t startTime, double elapsedTime, bool firstclick, bool poweruse, bool relancement)
 {
     int largeur = largeurFenetre();
@@ -286,7 +100,7 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
         }
     }
 
-    if (fondBlanc)
+    if (fondBlanc) //inverse les couleur pour plus de lisibilité
     {
         couleurCourante(0, 0, 0);
     }
@@ -295,24 +109,24 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
         couleurCourante(255, 255, 255);
     }
 
-    // float lFenetre = largeurFenetre();
     int taillePolice = largeur / 25;
-
     epaisseurDeTrait(3);
-    char titre[] = "DEMINEUR";
+    char titre[] = "DEMINEUR";           // pour afficher le titre du jeu
     couleurCourante(87, 9, 135);
     afficheChaine(titre, taillePolice, largeur * 0.645, hauteur * 0.90);
 
     epaisseurDeTrait(2);
+    int x1 = largeur*7/8, x2 = largeur*7.5/8, y1 = hauteur*11.5/12, y2 = hauteur*10.5/12;  // pour afficher le rectangle vide pour le pouvoir
+    ligne(x1, y1, x2, y1);
+    ligne(x1, y1, x1, y2);
+    ligne(x2, y1, x2, y2);
+    ligne(x1, y2, x2, y2);
     if (poweruse)
     {
-        char power[] = "Pouvoir Active";
-        taillePolice = largeur / 70;
-        afficheChaine(power, taillePolice, largeur * 0.89, hauteur * 0.1 / 12);
+        rectangle(x1, y1, x2, y2); //le rectangle se rempli pour montrer que le pouvoir est activé
     }
 
     taillePolice = largeur / 35;
-
     char chrono[20];
     static double finalTime = 0;
 
@@ -320,9 +134,7 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
     {
         time_t currentTime;
         time(&currentTime);
-        // printf("Current time: %ld\n", currentTime);
-        // printf("Start time: %ld\n", startTime);
-        elapsedTime = difftime(currentTime, startTime);
+        elapsedTime = difftime(currentTime, startTime); //calcule la différence de "temps"
         finalTime = elapsedTime; // Mettre à jour finalTime pendant le jeu
     }
     else if ((win || minetouche) && finalTime == 0 && !relancement)
@@ -331,7 +143,7 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
     }
     else if (relancement)
     {
-        finalTime = 0;
+        finalTime = 0; //remets le chrono à 0 quand il n'y a plus de partie en cours
     }
 
     epaisseurDeTrait(1);
@@ -349,10 +161,10 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
     epaisseurDeTrait(1);
     char flag[50];
     sprintf(flag, "Mines restantes: %2d", cptflag);
-    afficheChaine(flag, taillePolice, largeur * 0.612, hauteur * 8.1 / 12);
+    afficheChaine(flag, taillePolice, largeur * 0.612, hauteur * 8.1 / 12); // comppteur de flag
 
     couleurCourante(74, 35, 90);
-    rectangle(largeur * 5 / 8, hauteur * 7 / 12, largeur * 7 / 8, hauteur * 5.5 / 12);
+    rectangle(largeur * 5 / 8, hauteur * 7 / 12, largeur * 7 / 8, hauteur * 5.5 / 12); //début de création des 3 boutons sur le coté
     couleurCourante(125, 60, 152);
     rectangle(largeur * 5 / 8, hauteur * 4.5 / 12, largeur * 7 / 8, hauteur * 3 / 12);
     couleurCourante(187, 143, 206);
@@ -367,7 +179,7 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
     afficheChaine(EcranTitre, taillePolice, largeur * 0.655, hauteur * 0.095);
     taillePolice = largeur / 47;
     char switchNiveau[] = "Changer de niveau";
-    afficheChaine(switchNiveau, taillePolice, largeur * 0.644, hauteur * 0.305);
+    afficheChaine(switchNiveau, taillePolice, largeur * 0.644, hauteur * 0.305);  //fin de création des 3 boutons sur le coté
 
     if (win || minetouche)
     {
@@ -416,7 +228,7 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
             couleurCourante(255, 255, 255);
         }
         rectangle(largeur * 1.5 / 8, hauteur * 6 / 12, largeur * 3.5 / 8, hauteur * 4 / 12);
-        rectangle(largeur * 4.5 / 8, hauteur * 6 / 12, largeur * 6.5 / 8, hauteur * 4 / 12);
+        rectangle(largeur * 4.5 / 8, hauteur * 6 / 12, largeur * 6.5 / 8, hauteur * 4 / 12); // les deux boutons rejouer et quitter
         taillePolice = largeur / 23;
         if (win)
         {
@@ -451,7 +263,7 @@ void pageAccueil(bool fondBlanc)
     epaisseurDeTrait(5);
 
     couleurCourante(46, 204, 113);
-    rectangle(lFenetre * 3 / 8, hFenetre * 9.5 / 12, lFenetre * 5 / 8, hFenetre * 7.5 / 12);
+    rectangle(lFenetre * 3 / 8, hFenetre * 9.5 / 12, lFenetre * 5 / 8, hFenetre * 7.5 / 12);  // les trois boutons pour sélectionner la difficulté
 
     couleurCourante(243, 156, 18);
     rectangle(lFenetre * 3 / 8, hFenetre * 6.5 / 12, lFenetre * 5 / 8, hFenetre * 4.5 / 12);
@@ -470,7 +282,7 @@ void pageAccueil(bool fondBlanc)
     epaisseurDeTrait(3);
     char titre[] = "DEMINEUR";
     int taillePolice = lFenetre / 16;
-    afficheChaine(titre, taillePolice, lFenetre * 0.337, hFenetre * 0.875);
+    afficheChaine(titre, taillePolice, lFenetre * 0.337, hFenetre * 0.875);   // affiche les différentes chaines de caractère de manière responsive
 
     epaisseurDeTrait(2);
     ligne(lFenetre * 0.333, hFenetre * 0.865, lFenetre * 0.67, hFenetre * 0.867);
