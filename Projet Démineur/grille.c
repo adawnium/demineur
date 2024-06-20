@@ -45,7 +45,7 @@ Case** initTableau(int lignes, int colonnes) {
 			tableau[i][j].etat = '.';
 			tableau[i][j].flagged = false;
 			tableau[i][j].hasMine = false;
-			tableau[i][j].revealed = false;  // TODO: changer à false
+			tableau[i][j].revealed = false;
 			tableau[i][j].nbMinesAdj = 0;
 		}
 	}
