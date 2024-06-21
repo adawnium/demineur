@@ -16,7 +16,3 @@ utilisateur.o: utilisateur.c utilisateur.h GFXLIB/GfxLib.h
 
 clean:
 	rm -f *~ *.o
-
-deepclean: clean
-	rm -f affichage
-

@@ -289,7 +289,7 @@ void gestionEvenement(EvenementGfx evenement)
         }
         else
         {
-            dessineGrille(lignes, colonnes, fondBlanc, win, minetouche, tableau, cptflag, startTime, elapsedTime, firstclick, poweruse, relancement);
+            pageJeu(lignes, colonnes, fondBlanc, win, minetouche, tableau, cptflag, startTime, elapsedTime, firstclick, poweruse, relancement);
         }
         break;
     case Clavier:
@@ -310,10 +310,6 @@ void gestionEvenement(EvenementGfx evenement)
             {
                 redimensionneFenetre(LargeurFenetre, HauteurFenetre);
             }
-            break;
-        case 'R':
-        case 'r':
-            demandeTemporisation(20);
             break;
         case 'B':
         case 'b':

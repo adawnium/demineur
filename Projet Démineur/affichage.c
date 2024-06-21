@@ -11,7 +11,7 @@
 #define HauteurFenetre 601
 #define LARGEUR_SCORE 400
 
-void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool minetouche, Case **tableau, int cptflag, time_t startTime, double elapsedTime, bool firstclick, bool poweruse, bool relancement)
+void pageJeu(int lignes, int colonnes, bool fondBlanc, bool win, bool minetouche, Case **tableau, int cptflag, time_t startTime, double elapsedTime, bool firstclick, bool poweruse, bool relancement)
 {
     int largeur = largeurFenetre();
     int largeurgrille = largeurFenetre() - LARGEUR_SCORE;
@@ -161,7 +161,7 @@ void dessineGrille(int lignes, int colonnes, bool fondBlanc, bool win, bool mine
     epaisseurDeTrait(1);
     char flag[50];
     sprintf(flag, "Mines restantes: %2d", cptflag);
-    afficheChaine(flag, taillePolice, largeur * 0.612, hauteur * 8.1 / 12); // comppteur de flag
+    afficheChaine(flag, taillePolice, largeur * 0.612, hauteur * 8.1 / 12); // compteur de flag
 
     couleurCourante(74, 35, 90);
     rectangle(largeur * 5 / 8, hauteur * 7 / 12, largeur * 7 / 8, hauteur * 5.5 / 12); //début de création des 3 boutons sur le coté
